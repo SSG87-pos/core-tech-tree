@@ -86,7 +86,7 @@
   .kpi.core-l4 b { color:#008c95; }
   .kpi span { display:block; color:var(--muted); font-size:10px; font-weight:900; }
   .kpi b { display:block; margin-top:4px; font-size:22px; color:#001b44; }
-  .workspace { display:grid; grid-template-columns:250px minmax(0,1fr); gap:14px; }
+  .workspace { display:grid; grid-template-columns:250px minmax(0,1fr); gap:14px; align-items:start; }
   .panel { background:#fff; border:1px solid #cbd8e8; border-radius:12px; overflow:hidden; box-shadow:0 12px 30px rgba(0,27,68,.07); }
   .panel-head { padding:13px 15px; border-bottom:1px solid #d9e3ef; display:flex; justify-content:space-between; align-items:center; gap:12px; background:linear-gradient(180deg,#fff,#f8fbfe); }
   .panel-head strong { font-size:15px; color:#001b44; }
@@ -427,6 +427,171 @@
   .owner {
     color:#1f344d; background:#edf3f8; border:1px solid #cbd8e8; border-radius:999px;
     padding:2px 6px; font-size:9px; font-weight:900; white-space:nowrap; max-width:118px; overflow:hidden; text-overflow:ellipsis;
+  }
+  .detail-popover {
+    position:fixed;
+    z-index:40;
+    width:min(330px, calc(100vw - 24px));
+    max-height:min(620px, calc(100vh - 24px));
+    overflow:auto;
+    border:1px solid #b8cade;
+    border-radius:13px;
+    background:#fff;
+    box-shadow:0 22px 58px rgba(0,27,68,.22);
+    opacity:0;
+    pointer-events:none;
+    transform:translateY(6px);
+    transition:opacity .14s ease, transform .14s ease;
+  }
+  .detail-popover.visible {
+    opacity:1;
+    pointer-events:auto;
+    transform:translateY(0);
+  }
+  .detail-popover-head {
+    position:sticky;
+    top:0;
+    z-index:1;
+    min-height:38px;
+    padding:9px 10px 9px 12px;
+    border-bottom:1px solid #e3ebf4;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    background:linear-gradient(180deg,#fff,#f8fbfe);
+  }
+  .detail-popover-head strong {
+    color:#001b44;
+    font-size:13px;
+  }
+  .detail-close {
+    width:24px;
+    height:24px;
+    min-height:24px;
+    padding:0;
+    border-radius:8px;
+    font-size:15px;
+    line-height:1;
+  }
+  .detail-body {
+    padding:13px;
+    display:grid;
+    gap:12px;
+    background:#fff;
+  }
+  .detail-empty {
+    min-height:180px;
+    display:grid;
+    align-content:center;
+    gap:8px;
+    color:#667085;
+    font-size:12px;
+    line-height:1.45;
+  }
+  .detail-empty b {
+    color:#001b44;
+    font-size:14px;
+  }
+  .detail-path {
+    color:#667085;
+    font-size:10px;
+    line-height:1.45;
+    word-break:keep-all;
+  }
+  .detail-title {
+    margin:0;
+    color:#001b44;
+    font-size:18px;
+    line-height:1.22;
+    letter-spacing:0;
+  }
+  .detail-meta {
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+  }
+  .detail-pill {
+    display:inline-flex;
+    align-items:center;
+    min-height:22px;
+    padding:3px 8px;
+    border-radius:999px;
+    border:1px solid #d8e3ef;
+    background:#f8fafc;
+    color:#334155;
+    font-size:10px;
+    font-weight:850;
+  }
+  .detail-pill.core3 { border-color:#b9d6f5; background:#eef6ff; color:#005bac; }
+  .detail-pill.core4 { border-color:#b9e5e2; background:#ecfbfa; color:#00747d; }
+  .detail-pill.non { color:#667085; }
+  .detail-pill.market { border-color:#fbbf24; background:#fffbeb; color:#92400e; }
+  .detail-pill.tech { border-color:#a78bfa; background:#f5f3ff; color:#6d28d9; }
+  .detail-pill.future { border-color:#fb7185; background:#fff1f2; color:#be123c; }
+  .detail-section {
+    border-top:1px solid #e8eef6;
+    padding-top:10px;
+    display:grid;
+    gap:7px;
+  }
+  .detail-section h4 {
+    margin:0;
+    color:#45556b;
+    font-size:10px;
+    letter-spacing:.02em;
+  }
+  .detail-value {
+    color:#0b1628;
+    font-size:12px;
+    line-height:1.45;
+    font-weight:720;
+    word-break:keep-all;
+  }
+  .detail-orgs {
+    display:grid;
+    gap:6px;
+  }
+  .detail-org {
+    border:1px solid #dbe5ef;
+    border-radius:9px;
+    padding:7px 8px;
+    background:#fbfcfe;
+  }
+  .detail-org b,
+  .detail-org span {
+    display:block;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .detail-org b {
+    color:#001b44;
+    font-size:11px;
+    line-height:1.25;
+  }
+  .detail-org span {
+    margin-top:3px;
+    color:#667085;
+    font-size:10px;
+    font-weight:750;
+  }
+  .detail-mini-list {
+    display:grid;
+    gap:5px;
+    margin:0;
+    padding:0;
+    list-style:none;
+  }
+  .detail-mini-list li {
+    min-width:0;
+    color:#27384d;
+    font-size:11px;
+    line-height:1.35;
+    font-weight:750;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
   }
   .analytics-panel { display:grid; gap:14px; }
   .chart-grid { padding:16px; display:grid; grid-template-columns:1.05fr .95fr; gap:16px; background:#f6f8fb; }
@@ -1251,7 +1416,10 @@
       </div>
       <div class="mind-grid" id="mindGrid"></div>
     </main>
+
   </section>
+
+  <aside class="detail-popover" id="detailPanel" aria-live="polite"></aside>
 
   <section class="panel analytics-panel">
     <div class="panel-head">
@@ -1987,6 +2155,157 @@ function renderEditor(){
       <button id="cancelEdit">취소</button>
     </div>`;
 }
+function uniqueOwners(items){
+  const map = new Map();
+  items.forEach(r => ownersOf(r).forEach(o => {
+    const key = [o.group, o.team, o.owner].filter(Boolean).join("|");
+    if (key && !map.has(key)) map.set(key, {
+      group:o.group || "",
+      team:o.team || "",
+      owner:o.owner || "",
+    });
+  }));
+  return Array.from(map.values());
+}
+function detailPill(text, className = ""){
+  return `<span class="detail-pill ${className}" ${textTooltipAttr(text)}>${escapeAttr(text || "-")}</span>`;
+}
+function detailOrgsHtml(owners){
+  if (!owners.length) return `<div class="detail-value">조직 정보 없음</div>`;
+  return `<div class="detail-orgs">${owners.map(o => {
+    const full = [o.group, o.team, o.owner].filter(Boolean).join(" · ");
+    return `<div class="detail-org" ${textTooltipAttr(full)}>
+      <b>${escapeAttr(o.group || "-")}</b>
+      <span>${escapeAttr([o.team, o.owner].filter(Boolean).join(" · ") || "-")}</span>
+    </div>`;
+  }).join("")}</div>`;
+}
+function detailMiniList(items){
+  const labels = items.map(v => clean(v)).filter(Boolean);
+  if (!labels.length) return `<div class="detail-value">-</div>`;
+  return `<ul class="detail-mini-list">${labels.slice(0, 6).map(v => `<li ${textTooltipAttr(v)}>${escapeAttr(v)}</li>`).join("")}${labels.length > 6 ? `<li>외 ${labels.length - 6}개</li>` : ""}</ul>`;
+}
+function coreDetailForL4(r){
+  if (r.coreLevel === 4) return { label:"Level 4 Core", cls:"core4" };
+  const parentRows = rows.filter(row => row.l1 === r.l1 && row.l2 === r.l2 && row.l3 === r.l3);
+  if (parentRows.some(row => row.coreLevel === 3)) return { label:"Level 3 Core 구성기술", cls:"core3" };
+  return { label:"일반기술", cls:"non" };
+}
+function selectedAnchorElement(){
+  if (!selectedNode) return null;
+  return Array.from(document.querySelectorAll("[data-edit-type]")).find(el =>
+    el.dataset.editType === selectedNode.type && el.dataset.editKey === selectedNode.key
+  );
+}
+function positionDetailPopover(){
+  const panel = $("detailPanel");
+  if (!panel || !panel.classList.contains("visible")) return;
+  const anchor = selectedAnchorElement();
+  if (!anchor) return;
+  const rect = anchor.getBoundingClientRect();
+  const gap = 10;
+  const margin = 10;
+  const width = panel.offsetWidth || 330;
+  const height = panel.offsetHeight || 300;
+  let x = rect.right + gap;
+  let y = rect.top;
+  const fitsRight = x + width <= window.innerWidth - margin;
+  const leftX = rect.left - width - gap;
+  if (!fitsRight && leftX >= margin) x = leftX;
+  if (!fitsRight && leftX < margin) {
+    x = Math.min(Math.max(rect.left, margin), Math.max(margin, window.innerWidth - width - margin));
+    y = rect.bottom + gap;
+    if (y + height > window.innerHeight - margin) y = rect.top - height - gap;
+  }
+  if (y + height > window.innerHeight - margin) y = window.innerHeight - height - margin;
+  if (y < margin) y = margin;
+  panel.style.left = `${Math.max(margin, x)}px`;
+  panel.style.top = `${Math.max(margin, y)}px`;
+}
+function setDetailContent(html){
+  const panel = $("detailPanel");
+  if (!panel) return;
+  panel.innerHTML = `
+    <div class="detail-popover-head">
+      <strong>상세</strong>
+      <button class="detail-close" type="button" data-close-detail aria-label="상세 닫기">×</button>
+    </div>
+    <div class="detail-body">${html}</div>`;
+  panel.classList.add("visible");
+  requestAnimationFrame(positionDetailPopover);
+}
+function renderDetail(){
+  const panel = $("detailPanel");
+  if (!panel) return;
+  if (!selectedNode) {
+    panel.classList.remove("visible");
+    panel.innerHTML = "";
+    return;
+  }
+  if (selectedNode.type === "l3") {
+    const l3Rows = findL3Rows(selectedNode.key);
+    if (!l3Rows.length) {
+      setDetailContent(`<div class="detail-empty"><b>선택 항목 없음</b><span>현재 데이터에서 선택한 Level 3을 찾지 못했습니다.</span></div>`);
+      return;
+    }
+    const first = l3Rows[0];
+    const marker = l3Rows.find(r => r.coreLevel === 3);
+    const l4CoreCount = l3Rows.filter(r => r.coreLevel === 4).length;
+    const core = marker ? { label:"Level 3 Core", cls:"core3" } : l4CoreCount ? { label:`Level 4 Core ${l4CoreCount}개`, cls:"core4" } : { label:"일반 Level 3", cls:"non" };
+    const category = marker?.category || l3Rows.find(r => r.coreLevel === 4)?.category || "";
+    const program = marker?.program || first.program || "-";
+    const ownerList = uniqueOwners(marker ? [marker] : l3Rows);
+    setDetailContent(`
+      <div>
+        <div class="detail-path">${escapeAttr(first.l1)} &gt; ${escapeAttr(first.l2)}</div>
+        <h3 class="detail-title">${escapeAttr(first.l3)}</h3>
+      </div>
+      <div class="detail-meta">
+        ${detailPill(core.label, core.cls)}
+        ${category ? detailPill(category, categoryClass(category)) : detailPill("성장 미지정", "non")}
+        ${detailPill(program)}
+        ${detailPill(`Level 4 ${l3Rows.length}개`)}
+      </div>
+      <div class="detail-section">
+        <h4>하위 Level 4</h4>
+        ${detailMiniList(l3Rows.map(r => r.l4))}
+      </div>
+      <div class="detail-section">
+        <h4>기술 스티커</h4>
+        ${detailMiniList(l3Rows.map(repText))}
+      </div>
+      <div class="detail-section">
+        <h4>관련 조직 ${ownerList.length}개</h4>
+        ${detailOrgsHtml(ownerList)}
+      </div>`);
+    return;
+  }
+  const r = findL4Row(selectedNode.key);
+  if (!r) {
+    setDetailContent(`<div class="detail-empty"><b>선택 항목 없음</b><span>현재 데이터에서 선택한 Level 4를 찾지 못했습니다.</span></div>`);
+    return;
+  }
+  const core = coreDetailForL4(r);
+  const ownerList = ownersOf(r).filter(o => o.group || o.team || o.owner);
+  setDetailContent(`
+    <div>
+      <div class="detail-path">${escapeAttr(r.l1)} &gt; ${escapeAttr(r.l2)} &gt; ${escapeAttr(r.l3)}</div>
+      <h3 class="detail-title">${escapeAttr(r.l4)}</h3>
+    </div>
+    <div class="detail-meta">
+      ${detailPill(core.label, core.cls)}
+      ${r.category ? detailPill(r.category, categoryClass(r.category)) : detailPill("성장 미지정", "non")}
+      ${detailPill(r.program || "-")}
+    </div>
+    <div class="detail-section">
+      <h4>기술 스티커</h4>
+      <div class="detail-value" ${textTooltipAttr(repText(r))}>${escapeAttr(repText(r) || "-")}</div>
+    </div>
+    <div class="detail-section">
+      <h4>관련 조직 ${ownerList.length}개</h4>
+      ${detailOrgsHtml(ownerList)}
+    </div>`);
+}
 function saveCurrentEdit(){
   if (!selectedNode) return;
   if (selectedNode.type === "l3") {
@@ -2302,8 +2621,15 @@ function render(){
   renderMindGrid(filtered);
   renderCharts(filtered);
   renderEditor();
+  renderDetail();
 }
 document.addEventListener("click", (e) => {
+  const closeDetail = e.target.closest("[data-close-detail]");
+  if (closeDetail) {
+    selectedNode = null;
+    render();
+    return;
+  }
   const presetBtn = e.target.closest("button[data-collapse-preset]");
   if (presetBtn) {
     applyCollapsePreset(presetBtn.dataset.collapsePreset);
@@ -2352,6 +2678,8 @@ document.addEventListener("click", (e) => {
   document.querySelectorAll(`button[data-filter="${filter}"]`).forEach(b => b.classList.toggle("active", b.dataset.value === value));
   render();
 });
+window.addEventListener("resize", positionDetailPopover);
+window.addEventListener("scroll", positionDetailPopover, { passive:true });
 const vizTooltip = document.createElement("div");
 vizTooltip.className = "viz-tooltip";
 document.body.appendChild(vizTooltip);

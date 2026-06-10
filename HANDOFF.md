@@ -6,7 +6,7 @@
 
 `PTRS_Core_Tech_Map.html`
 
-이 화면은 `PTRS ↔ Core Tech` 제목, Level 구조 KPI, Core 지정 KPI, 필터, 트리형 기술 체계 맵, Core Tech 통계를 포함합니다.
+이 화면은 `PTRS ↔ Core Tech` 제목, Level 구조 KPI, Core 지정 KPI, 필터, 트리형 기술 체계 맵, 클릭 위치 옆 상세 팝오버, Core Tech 통계를 포함합니다.
 
 ## Data Loading Priority
 
@@ -39,6 +39,15 @@ HTML 데이터 로딩 우선순위는 다음과 같습니다.
 - Level 3를 Core로 저장하면 같은 Level 3 아래 Level 4 Core는 자동 해제됩니다.
 - Level 4를 Core로 저장하면 부모 Level 3 Core는 자동 해제됩니다.
 - 수정 후 사용자는 `JSON 내보내기` 또는 `XLSX 내보내기`로 파일을 저장해야 다른 사람에게 전달할 수 있습니다.
+
+## Detail Popover
+
+트리에서 Level 3 또는 Level 4 항목을 클릭하면 클릭한 항목 옆에 `상세` 팝오버가 열립니다.
+
+- Level 3 상세: 경로, Core 범위, 성장 카테고리, 연구단계 구분, 하위 Level 4, 기술 스티커, 관련 조직을 보여줍니다.
+- Level 4 상세: 경로, Core 범위, 성장 카테고리, 연구단계 구분, 기술 스티커, 관련 조직을 보여줍니다.
+- 관련 조직은 계층 구조가 아니라 독립된 수행 주체 목록으로 표시합니다.
+- 팝오버는 고정 사이드바가 아니며, 선택 항목의 위치를 기준으로 화면 안에 들어오도록 좌우/상하 배치를 조정합니다.
 
 ## Important Files
 
