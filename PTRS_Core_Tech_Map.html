@@ -1,0 +1,2424 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PTRS ↔ Core Tech</title>
+<style>
+  :root {
+    --ink:#0b1628; --muted:#45556b; --line:#cbd8e8; --bg:#eef3f8; --panel:#fff;
+    --navy:#001b44; --blue:#005bac; --blue-bg:#e6f1fb; --green:#008c95; --green-bg:#e3f6f7;
+    --steel:#e7edf4; --steel-2:#f7fafc; --purple:#5265c9; --orange:#c57a12;
+    --cat-market:#f59e0b; --cat-tech:#7c3aed; --cat-future:#e11d48;
+  }
+  * { box-sizing:border-box; }
+  body {
+    margin:0;
+    background:
+      linear-gradient(90deg, rgba(0,91,172,.045) 1px, transparent 1px),
+      linear-gradient(rgba(0,91,172,.035) 1px, transparent 1px),
+      var(--bg);
+    background-size: 28px 28px;
+    color:var(--ink);
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  .app { min-height:100vh; padding:22px; display:grid; gap:14px; }
+  .hero {
+    border-radius:18px; padding:18px 22px; color:#fff;
+    background:
+      linear-gradient(135deg,#001b44,#004f9f 58%,#008c95),
+      radial-gradient(circle at 82% 16%, rgba(255,255,255,.22), transparent 26%);
+    display:block;
+  }
+  .hero h1 { margin:0; font-size:32px; letter-spacing:0; line-height:1.12; }
+  .hero p { margin:0; max-width:980px; color:rgba(255,255,255,.78); line-height:1.58; font-size:14px; }
+  .hero aside { color:rgba(255,255,255,.76); font-size:12px; font-weight:800; white-space:nowrap; }
+  .kpis { display:grid; grid-template-columns:minmax(0, 1.35fr) minmax(0, 1fr); gap:12px; }
+  .kpi-group {
+    border:1px solid #cfdae8;
+    border-radius:12px;
+    background:#fff;
+    overflow:hidden;
+  }
+  .kpi-group-title {
+    min-height:36px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    padding:8px 12px;
+    border-bottom:1px solid #e3ebf4;
+    color:#27384d;
+    font-size:12px;
+    font-weight:800;
+  }
+  .kpi-group-title:before {
+    content:"";
+    width:6px;
+    height:18px;
+    border-radius:999px;
+    background:#7c8da3;
+  }
+  .kpi-group-title b {
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:12px;
+    color:#27384d;
+  }
+  .kpi-group-title small {
+    color:#667085;
+    font-size:10px;
+    font-weight:700;
+  }
+  .kpi-group.level .kpi-group-title:before { background:#64748b; }
+  .kpi-group.core .kpi-group-title:before { background:linear-gradient(180deg,#005bac,#008c95); }
+  .kpi-row { display:grid; gap:8px; padding:8px; }
+  .kpi-group.level .kpi-row { grid-template-columns:repeat(4, minmax(0,1fr)); }
+  .kpi-group.core .kpi-row { grid-template-columns:repeat(3, minmax(0,1fr)); }
+  .kpi { background:#fff; border:1px solid #cfdae8; border-radius:10px; padding:12px 13px; box-shadow:0 10px 24px rgba(0,27,68,.06); }
+  .kpi.level { background:#f8fafc; border-color:#d9e2ee; }
+  .kpi.core-total { background:#f1f7fd; border-color:#bdd2ea; }
+  .kpi.core-l3 { background:#f0f7ff; border-color:#bcd7f0; }
+  .kpi.core-l4 { background:#eefafa; border-color:#bfe4e2; }
+  .kpi.core-total b { color:#001b44; }
+  .kpi.core-l3 b { color:#005bac; }
+  .kpi.core-l4 b { color:#008c95; }
+  .kpi span { display:block; color:var(--muted); font-size:10px; font-weight:900; }
+  .kpi b { display:block; margin-top:4px; font-size:22px; color:#001b44; }
+  .workspace { display:grid; grid-template-columns:250px minmax(0,1fr); gap:14px; }
+  .panel { background:#fff; border:1px solid #cbd8e8; border-radius:12px; overflow:hidden; box-shadow:0 12px 30px rgba(0,27,68,.07); }
+  .panel-head { padding:13px 15px; border-bottom:1px solid #d9e3ef; display:flex; justify-content:space-between; align-items:center; gap:12px; background:linear-gradient(180deg,#fff,#f8fbfe); }
+  .panel-head strong { font-size:15px; color:#001b44; }
+  .panel-head small { color:var(--muted); font-size:11px; font-weight:800; text-align:right; }
+  .filters { padding:13px; display:grid; gap:14px; }
+  .filter-block h3 { margin:0 0 8px; color:#334155; font-size:11px; letter-spacing:.02em; }
+  .btns { display:flex; flex-wrap:wrap; gap:6px; }
+  .btns.tree-controls button {
+    flex:1 1 calc(50% - 4px);
+  }
+  .btns.data-tools {
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:6px;
+  }
+  .btns.data-tools button {
+    min-height:26px;
+    padding:5px 7px;
+    border-radius:8px;
+    font-size:10px;
+  }
+  .data-note {
+    margin-top:6px;
+    color:#667085;
+    font-size:10px;
+    line-height:1.35;
+  }
+  .edit-panel {
+    display:grid;
+    gap:8px;
+    padding:9px;
+    border:1px solid #d9e3ef;
+    border-radius:10px;
+    background:#f8fafc;
+  }
+  .edit-panel.empty {
+    color:#667085;
+    font-size:11px;
+    line-height:1.4;
+  }
+  .edit-path {
+    padding:7px 8px;
+    border-radius:8px;
+    background:#fff;
+    border:1px solid #e3ebf4;
+    color:#334155;
+    font-size:10px;
+    line-height:1.35;
+    word-break:keep-all;
+  }
+  .edit-field {
+    display:grid;
+    gap:4px;
+  }
+  .edit-field label {
+    color:#45556b;
+    font-size:10px;
+    font-weight:800;
+  }
+  .edit-field input,
+  .edit-field select,
+  .edit-field textarea {
+    width:100%;
+    border:1px solid #dbe3ef;
+    border-radius:8px;
+    background:#fff;
+    color:#27384d;
+    font-size:11px;
+    font-weight:650;
+    outline:none;
+  }
+  .edit-field input,
+  .edit-field select {
+    height:28px;
+    padding:0 8px;
+  }
+  .edit-field textarea {
+    min-height:54px;
+    padding:7px 8px;
+    resize:vertical;
+    line-height:1.35;
+  }
+  .edit-actions {
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:6px;
+  }
+  .edit-actions button {
+    min-height:28px;
+    border-radius:8px;
+    font-size:10px;
+  }
+  .edit-actions .save {
+    background:#001b44;
+    border-color:#001b44;
+    color:#fff;
+  }
+  .file-input {
+    display:none;
+  }
+  button {
+    appearance:none; border:1px solid #cbd8e8; background:#fff; color:#27384d;
+    min-height:30px; padding:6px 9px; border-radius:999px; font-size:11px; font-weight:900;
+    cursor:pointer;
+  }
+  button.active { background:#001b44; color:#fff; border-color:#001b44; }
+  button.core3 { background:var(--blue-bg); color:#1e3a8a; border-color:#b9ceff; }
+  button.core4 { background:var(--green-bg); color:#065f46; border-color:#a8e7d4; }
+  button.active.core3 { background:var(--blue); color:#fff; }
+  button.active.core4 { background:var(--green); color:#fff; }
+  input {
+    width:100%; height:36px; border:1px solid #dbe3ef; border-radius:10px; padding:0 10px;
+    font-size:12px; color:#334155; outline:none; background:#f8fafc;
+  }
+  .legend { display:grid; gap:7px; font-size:11px; color:#475467; line-height:1.35; }
+  .legend-row { display:grid; grid-template-columns:24px 1fr; gap:7px; align-items:center; }
+  .swatch { width:14px; height:14px; border-radius:5px; margin-top:1px; }
+  .swatch.l3 { background:var(--blue); } .swatch.l4 { background:var(--green); } .swatch.included { background:#e8eef5; border:2px solid #7fa5cc; } .swatch.non { background:#cbd5e1; }
+  .map-toolbar { padding:11px 15px; background:#f7fafc; border-bottom:1px solid #d9e3ef; display:flex; justify-content:space-between; gap:10px; align-items:center; }
+  .status { color:#475467; font-size:12px; font-weight:800; }
+  .view-switch { display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end; }
+  .mind-grid {
+    padding:14px; display:grid; gap:18px;
+    background:
+      linear-gradient(90deg, rgba(0,91,172,.06) 1px, transparent 1px),
+      linear-gradient(rgba(0,91,172,.045) 1px, transparent 1px),
+      #f9fbfe;
+    background-size: 22px 22px;
+  }
+  .l1-section {
+    position:relative; border:1px solid #b9cbdf; border-radius:14px; background:rgba(255,255,255,.72);
+    padding:12px; overflow:hidden;
+  }
+  .l1-backbone {
+    position:relative; min-height:54px; border-radius:12px; padding:11px 14px;
+    display:grid; grid-template-columns:1fr auto; gap:12px; align-items:center;
+    color:#fff; overflow:hidden;
+  }
+  .node-head { display:flex; align-items:center; gap:8px; min-width:0; }
+  .collapse-btn {
+    width:24px; height:24px; border-radius:7px; border:1px solid #cbd8e8; background:#fff;
+    color:#27384d; display:inline-flex; align-items:center; justify-content:center;
+    font-size:13px; font-weight:800; line-height:1; cursor:pointer; flex:0 0 auto;
+    transition:transform .16s ease, background .16s ease, border-color .16s ease;
+  }
+  .collapse-btn:hover { background:#f2f6fb; border-color:#9fb6d0; }
+  .collapsed > .l1-backbone .collapse-btn,
+  .collapsed > .l2-head .collapse-btn,
+  .collapsed > .l3-main .collapse-btn { transform:rotate(-90deg); }
+  .l1-backbone:after {
+    content:""; position:absolute; left:18px; right:18px; bottom:0; height:4px;
+    background:rgba(255,255,255,.38); border-radius:999px;
+  }
+  .l1-backbone.산업군 { background:linear-gradient(135deg,#003f8f,#005bac); }
+  .l1-backbone.제품군 { background:linear-gradient(135deg,#006f78,#008c95); }
+  .l1-backbone.공정군 { background:linear-gradient(135deg,#394ba8,#5265c9); }
+  .l1-title { display:flex; align-items:center; gap:8px; min-width:0; }
+  .l1-label {
+    display:inline-flex; align-items:center; height:20px; padding:0 7px; border-radius:6px;
+    background:#001b44; color:#fff; font-size:9px; font-weight:900; letter-spacing:.02em; flex:0 0 auto;
+  }
+  .l1-title b { display:block; font-size:20px; line-height:1.1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .l1-title span { display:block; margin-top:4px; color:rgba(255,255,255,.75); font-size:11px; font-weight:800; }
+  .l1-metrics { display:flex; gap:7px; flex-wrap:wrap; justify-content:flex-end; }
+  .l1-metrics span {
+    height:25px; display:inline-flex; align-items:center; padding:0 9px; border-radius:999px;
+    background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.2); color:#fff; font-size:10px; font-weight:900;
+  }
+  .l2-grid {
+    position:relative; display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:13px;
+    margin-left:20px; padding:14px 0 0 0;
+  }
+  .l2-card {
+    position:relative;
+    border:1px solid #c7d6e7; border-radius:12px;
+    background:linear-gradient(180deg,#fff 0%,#f8fbfe 100%);
+    overflow:hidden; min-height:260px; display:grid; grid-template-rows:auto 1fr;
+  }
+  .l2-card:before {
+    content:""; position:absolute; left:13px; top:42px; bottom:12px; width:3px; border-radius:999px;
+    background:linear-gradient(180deg,#005bac,#008c95);
+    opacity:.55;
+  }
+  .l2-card:after {
+    content:""; position:absolute; left:14px; right:12px; top:42px; height:1px;
+    background:linear-gradient(90deg,rgba(0,91,172,.38),transparent);
+  }
+  .l2-head { position:relative; z-index:1; padding:10px 14px; border-bottom:1px solid #dfe8f2; display:grid; grid-template-columns:1fr auto; gap:10px; align-items:center; background:linear-gradient(180deg,#fafdff,#f1f6fb); }
+  .l2-name { display:flex; align-items:center; gap:8px; min-width:0; }
+  .l2-label {
+    display:inline-flex; align-items:center; height:20px; padding:0 7px; border-radius:6px;
+    background:#001b44; color:#fff; font-size:9px; font-weight:900; letter-spacing:.02em; flex:0 0 auto;
+  }
+  .l2-head b { display:block; color:#001b44; font-size:17px; line-height:1.18; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .l2-head span { display:block; color:var(--muted); font-size:11px; margin-top:4px; line-height:1.3; }
+  .root-pill { display:inline-flex; height:23px; align-items:center; padding:0 8px; border-radius:999px; color:#fff; font-size:9px; font-weight:900; white-space:nowrap; }
+  .root-pill.산업군 { background:#005bac; } .root-pill.제품군 { background:#008c95; } .root-pill.공정군 { background:#5265c9; }
+  .l2-head .root-pill {
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-width:74px;
+    height:30px;
+    padding:0 12px;
+    color:#fff;
+    font-size:13px;
+    font-weight:700;
+    letter-spacing:0;
+    box-shadow:none;
+  }
+  .l3-list { position:relative; z-index:1; padding:10px 10px 10px 24px; display:grid; gap:8px; align-content:start; }
+  .l3-row {
+    position:relative; border:1px solid #d8e3ef; border-radius:10px; overflow:hidden; background:#fff;
+  }
+  .l3-row:before {
+    content:""; position:absolute; left:-11px; top:20px; width:11px; height:2px; background:#9eb6cf;
+  }
+  .l3-main {
+    min-height:40px; padding:8px; display:grid; grid-template-columns:1fr; gap:8px; align-items:center;
+  }
+  .l3-main,
+  .l4-item {
+    cursor:pointer;
+  }
+  .l3-row.selected > .l3-main,
+  .l4-item.selected {
+    outline:2px solid #f59e0b;
+    outline-offset:2px;
+    background:#fffbeb;
+  }
+  .l3-row.core3 .l3-main { background:linear-gradient(90deg,#dcecff,#eef6ff); box-shadow:inset 5px 0 0 var(--blue); }
+  .l3-title b { display:flex; align-items:center; gap:8px; font-size:12px; color:#0b1628; line-height:1.25; }
+  .l3-row.core3 .l3-title b { color:#001b44; }
+  .badge {
+    display:inline-flex; align-items:center; height:20px; padding:0 7px; border-radius:999px;
+    color:#fff; font-size:9px; font-weight:900; white-space:nowrap;
+  }
+  .badge.l3 { background:var(--blue); } .badge.l4 { background:var(--green); } .badge.non { background:#d8e0ea; color:#475467; }
+  .l4-list {
+    position:relative; padding:10px 8px 10px 24px; display:grid; gap:6px;
+    background:
+      linear-gradient(90deg, rgba(0,91,172,.04) 1px, transparent 1px),
+      #fff;
+    background-size:16px 16px;
+    border-top:1px solid #eef3f8;
+  }
+  .l1-section.collapsed .l2-grid,
+  .l2-card.collapsed .l3-list,
+  .l3-row.collapsed .l4-list { display:none; }
+  .l2-card.collapsed { min-height:0; }
+  .l4-list:before {
+    content:""; position:absolute; left:13px; top:9px; bottom:11px; width:2px;
+    background:linear-gradient(180deg,#8aa9c9,#008c95); border-radius:999px; opacity:.72;
+  }
+  .l4-item {
+    position:relative; min-height:34px; display:grid; grid-template-columns:minmax(0,1fr) minmax(84px,auto); gap:7px; align-items:center;
+    padding:5px 6px; border-radius:7px; border:1px solid #d8e3ef; background:#f8fafc;
+    color:#475467; font-size:10px; font-weight:800;
+  }
+  .l4-item:before {
+    content:""; position:absolute; left:-11px; top:50%; width:10px; height:2px; background:#9eb6cf;
+  }
+  .l4-item.core4 { background:var(--green-bg); border-color:#8edee1; color:#005d63; box-shadow:inset 3px 0 0 var(--green); }
+  .l4-item.included { background:#f8fafc; border-color:#b8c9dc; color:#27384d; box-shadow:inset 3px 0 0 #7fa5cc; }
+  .mark {
+    width:22px; height:22px; border-radius:7px; display:inline-flex; align-items:center; justify-content:center;
+    background:#dbe3ef; color:#64748b; font-size:12px; font-weight:800; line-height:1; box-sizing:border-box;
+  }
+  .l4-item.core4 {
+    grid-template-columns:24px minmax(0,1fr) minmax(84px,auto);
+  }
+  .mark.star { background:#fff7ed; color:#b45309; }
+  .mark.star.market, .core-star.market { background:#fffbeb; color:#92400e; border:1.5px solid #f59e0b; }
+  .mark.star.tech, .core-star.tech { background:#f5f3ff; color:#6d28d9; border:1.5px solid #8b5cf6; }
+  .mark.star.future, .core-star.future { background:#fff1f2; color:#be123c; border:1.5px solid #f43f5e; }
+  .mark.included { background:#edf3f8; color:#64748b; border:1px solid #cbd8e8; font-size:14px; }
+  .core-star {
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:24px;
+    height:24px;
+    border-radius:8px;
+    font-size:15px;
+    font-weight:800;
+    line-height:1;
+    flex:0 0 auto;
+    box-sizing:border-box;
+  }
+  .l4-copy { min-width:0; display:grid; gap:2px; }
+  .l4-copy b { color:#0b1628; font-size:10px; line-height:1.22; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .l4-copy span { color:#475467; font-size:9px; line-height:1.2; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .l4-title-line {
+    min-width:0;
+    display:flex;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:5px;
+    row-gap:4px;
+  }
+  .l4-title-line b {
+    flex:0 1 auto;
+    min-width:0;
+    white-space:normal;
+    overflow:visible;
+    text-overflow:clip;
+    line-height:1.3;
+  }
+  .rep-chip {
+    flex:0 1 auto;
+    max-width:118px;
+    min-height:20px;
+    display:inline-flex;
+    align-items:center;
+    padding:2px 6px;
+    border-radius:999px;
+    border:1px solid #d8e3ef;
+    background:#f2f6fb;
+    color:#52657a;
+    font-size:10px;
+    font-weight:650;
+    line-height:1.1;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .l4-item.core4 .rep-chip {
+    background:#ecfbfa;
+    border-color:#b9e5e2;
+    color:#166a70;
+  }
+  .l4-item.included .rep-chip {
+    background:#edf5ff;
+    border-color:#c9dcef;
+    color:#315a83;
+  }
+  .owners { display:grid; gap:2px; justify-items:end; }
+  .owner {
+    color:#1f344d; background:#edf3f8; border:1px solid #cbd8e8; border-radius:999px;
+    padding:2px 6px; font-size:9px; font-weight:900; white-space:nowrap; max-width:118px; overflow:hidden; text-overflow:ellipsis;
+  }
+  .analytics-panel { display:grid; gap:14px; }
+  .chart-grid { padding:16px; display:grid; grid-template-columns:1.05fr .95fr; gap:16px; background:#f6f8fb; }
+  .chart-card {
+    border:1px solid #d9e2ee; border-radius:10px; background:linear-gradient(180deg,#fff,#fbfcfe); overflow:hidden;
+    box-shadow:0 1px 0 rgba(0,27,68,.04);
+  }
+  .chart-card.wide { grid-column:1 / -1; }
+  .chart-title { padding:13px 15px; border-bottom:1px solid #e8eef6; display:flex; justify-content:space-between; gap:10px; align-items:center; }
+  .chart-title b { color:#071225; font-size:13px; display:flex; align-items:center; gap:8px; }
+  .chart-title b:before { content:""; width:6px; height:18px; border-radius:999px; background:#94a3b8; }
+  .chart-card.scope .chart-title b:before { background:#334155; }
+  .chart-card.l1-core .chart-title b:before { background:linear-gradient(180deg,#005bac,#5265c9); }
+  .chart-card.category .chart-title b:before { background:linear-gradient(180deg,var(--cat-market),var(--cat-future)); }
+  .chart-card.matrix .chart-title b:before { background:#64748b; }
+  .chart-card.groups .chart-title b:before { background:#0f766e; }
+  .chart-card.programs .chart-title b:before { background:#475569; }
+  .chart-title span { color:#667085; font-size:10px; font-weight:700; }
+  .bar-chart { padding:14px 15px; display:grid; gap:10px; }
+  .bar-row { display:grid; grid-template-columns:112px minmax(0,1fr) 32px; gap:10px; align-items:center; font-size:11px; font-weight:700; color:#27384d; }
+  .bar-row[data-chart-filter] { cursor:pointer; }
+  .bar-row[data-chart-filter]:hover span { color:#071225; }
+  .bar-track { height:9px; border-radius:999px; background:#eef2f7; overflow:hidden; box-shadow:inset 0 0 0 1px rgba(15,23,42,.035); }
+  .bar-fill { display:block; height:100%; border-radius:999px; background:#475569; }
+  .dual-bars { padding:14px 15px; display:grid; gap:11px; }
+  .dual-legend { display:flex; justify-content:flex-end; gap:12px; color:#667085; font-size:10px; font-weight:700; }
+  .dual-legend i { display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:5px; vertical-align:-1px; }
+  .dual-legend .total i { background:#cbd5e1; }
+  .dual-legend .core i { background:#0f766e; }
+  .dual-row {
+    display:grid; grid-template-columns:112px minmax(0,1fr) 68px; gap:10px; align-items:center;
+    color:#27384d; font-size:11px; font-weight:700;
+  }
+  .dual-row[data-chart-filter] { cursor:pointer; }
+  .dual-row[data-chart-filter]:hover > span { color:#071225; }
+  .dual-track { position:relative; height:11px; border-radius:999px; background:#eef2f7; overflow:hidden; box-shadow:inset 0 0 0 1px rgba(15,23,42,.04); }
+  .dual-total,
+  .dual-core { position:absolute; left:0; top:0; bottom:0; border-radius:999px; }
+  .dual-total { background:#cbd5e1; }
+  .dual-core { background:linear-gradient(90deg,#0f766e,#14b8a6); box-shadow:0 0 0 1px rgba(15,118,110,.18); }
+  .dual-count { display:flex; justify-content:flex-end; gap:4px; align-items:center; white-space:nowrap; font-size:10px; }
+  .dual-count b,
+  .dual-count span { min-width:22px; height:20px; display:inline-flex; align-items:center; justify-content:center; border-radius:999px; }
+  .dual-count b { color:#fff; background:#0f766e; }
+  .dual-count span { color:#475467; background:#eef2f7; }
+  .scope-chart { padding:16px 18px; display:grid; grid-template-columns:128px 1fr; gap:18px; align-items:center; }
+  .donut {
+    width:116px; height:116px; border-radius:50%;
+    background:conic-gradient(#334155 0 var(--l3p), #008c95 var(--l3p) var(--l4p), #d7dee8 var(--l4p) 100%);
+    position:relative; box-shadow:inset 0 0 0 1px #d9e2ee, 0 8px 20px rgba(15,23,42,.08);
+  }
+  .donut.l1-donut {
+    background:conic-gradient(#005bac 0 var(--industryp), #008c95 var(--industryp) var(--productp), #5265c9 var(--productp) 100%);
+  }
+  .donut:after {
+    content:""; position:absolute; inset:26px; border-radius:50%; background:#fff; border:1px solid #e5ebf3;
+  }
+  .legend-list { display:grid; gap:9px; }
+  .legend-stat { min-height:30px; display:grid; grid-template-columns:14px 1fr auto; gap:8px; align-items:center; color:#27384d; font-size:11px; font-weight:700; }
+  .legend-stat[data-tooltip],
+  .heat[data-tooltip],
+  .bar-row[data-tooltip],
+  .dual-row[data-tooltip],
+  .owner[data-tooltip],
+  .rep-chip[data-tooltip],
+  .l1-title b[data-tooltip],
+  .l2-head b[data-tooltip],
+  .l3-title b[data-tooltip],
+  .l4-copy b[data-tooltip],
+  .l4-copy span[data-tooltip] {
+    cursor:help;
+  }
+  .legend-dot { width:11px; height:11px; border-radius:4px; background:#334155; }
+  .legend-dot.l4 { background:#008c95; } .legend-dot.non { background:#d7dee8; }
+  .legend-dot.industry { background:#005bac; }
+  .legend-dot.product { background:#008c95; }
+  .legend-dot.process { background:#5265c9; }
+  .heat-grid { padding:15px; display:grid; grid-template-columns:128px repeat(3,1fr); gap:7px; }
+  .chart-card.matrix .heat-grid {
+    grid-template-columns:84px repeat(3, minmax(0,1fr));
+    gap:6px;
+    padding:14px;
+  }
+  .chart-card.matrix .heat {
+    min-height:34px;
+    font-size:11px;
+  }
+  .heat { min-height:36px; border-radius:7px; display:flex; align-items:center; justify-content:center; border:1px solid rgba(15,23,42,.06); font-size:11px; font-weight:700; color:#071225; background:#f8fafc; }
+  .heat.label { justify-content:flex-start; padding-left:9px; color:#334155; background:#f1f5f9; }
+  .heat.col-label { justify-content:center; padding-left:0; }
+  .heat.cat-market.h1 { background:#fffbeb; } .heat.cat-market.h2 { background:#fde68a; } .heat.cat-market.h3 { background:#f59e0b; color:#fff; } .heat.cat-market.h4 { background:#92400e; color:#fff; }
+  .heat.cat-tech.h1 { background:#f5f3ff; } .heat.cat-tech.h2 { background:#ddd6fe; } .heat.cat-tech.h3 { background:#a78bfa; color:#fff; } .heat.cat-tech.h4 { background:#6d28d9; color:#fff; }
+  .heat.cat-future.h1 { background:#fff1f2; } .heat.cat-future.h2 { background:#fecdd3; } .heat.cat-future.h3 { background:#fb7185; color:#fff; } .heat.cat-future.h4 { background:#be123c; color:#fff; }
+  .program-strip { padding:14px 15px; display:grid; gap:12px; }
+  .stack-row { display:grid; grid-template-columns:92px 1fr 32px; gap:9px; align-items:center; font-size:11px; color:#27384d; font-weight:700; }
+  .viz-tooltip {
+    position:fixed;
+    z-index:50;
+    max-width:320px;
+    padding:10px 12px;
+    border:1px solid #cbd8e8;
+    border-radius:10px;
+    background:#fff;
+    color:#0b1628;
+    box-shadow:0 14px 36px rgba(0,27,68,.18);
+    font-size:12px;
+    line-height:1.45;
+    white-space:pre-line;
+    pointer-events:none;
+    opacity:0;
+    transform:translateY(4px);
+    transition:opacity .12s ease, transform .12s ease;
+  }
+  .viz-tooltip.visible {
+    opacity:1;
+    transform:translateY(0);
+  }
+  .side-note { padding:14px; color:#334155; font-size:12px; line-height:1.55; }
+  .side-note b { color:#071225; }
+  .empty { padding:34px; text-align:center; color:#64748b; font-size:13px; font-weight:800; }
+
+  /* calmer working-dashboard treatment */
+  body {
+    background:#f4f7fb;
+  }
+  .app {
+    gap:16px;
+  }
+  .hero {
+    color:#0b1628;
+    background:transparent;
+    border:0;
+    border-radius:0;
+    padding:8px 2px 4px;
+    box-shadow:none;
+    display:block;
+  }
+  .hero h1 {
+    margin:0;
+    font-size:36px;
+    font-weight:800;
+    line-height:1.08;
+    letter-spacing:0;
+    color:transparent;
+    background:
+      linear-gradient(90deg,#001b44 0%,#005bac 34%,#00a6b2 68%,#7ad9e1 100%);
+    -webkit-background-clip:text;
+    background-clip:text;
+    filter:drop-shadow(0 1px 0 rgba(255,255,255,.65));
+  }
+  .hero p {
+    color:#45556b;
+    font-size:15px;
+    line-height:1.55;
+  }
+  .hero aside {
+    color:#005bac;
+    font-size:13px;
+    font-weight:600;
+  }
+  .kpi,
+  .kpi-group,
+  .panel,
+  .l1-section,
+  .l2-card {
+    box-shadow:none;
+  }
+  .kpi {
+    border-radius:10px;
+    padding:13px 14px;
+  }
+  .kpi span,
+  .panel-head small,
+  .filter-block h3,
+  .status,
+  .chart-title span,
+  .l2-head span,
+  .l4-copy span {
+    font-weight:500;
+  }
+  .kpi span,
+  .filter-block h3 {
+    font-size:12px;
+  }
+  .kpi b {
+    font-size:22px;
+    font-weight:700;
+  }
+  .kpi-group {
+    box-shadow:none;
+  }
+  .workspace {
+    grid-template-columns:210px minmax(0,1fr);
+    gap:10px;
+  }
+  .panel-head strong {
+    font-size:16px;
+    font-weight:700;
+  }
+  .panel > .panel-head {
+    padding:9px 12px;
+  }
+  aside.panel .panel-head small {
+    display:none;
+  }
+  .filters {
+    padding:9px;
+    gap:9px;
+  }
+  .filter-block h3 {
+    margin:0 0 5px;
+    font-size:10px;
+    letter-spacing:.01em;
+  }
+  .btns {
+    gap:4px;
+  }
+  .btns.tree-controls button {
+    flex:1 1 100%;
+  }
+  button {
+    font-size:10.5px;
+    font-weight:600;
+    border-radius:7px;
+    min-height:24px;
+    padding:3px 7px;
+  }
+  aside.panel button {
+    min-height:23px;
+    padding:3px 6px;
+    font-size:10px;
+  }
+  input {
+    height:30px;
+    border-radius:8px;
+    padding:0 8px;
+    font-size:11px;
+  }
+  .legend {
+    gap:4px;
+    font-size:10px;
+    line-height:1.2;
+  }
+  .legend-row {
+    grid-template-columns:18px 1fr;
+    gap:5px;
+  }
+  .legend .swatch,
+  .legend .core-star {
+    width:13px;
+    height:13px;
+    border-radius:4px;
+    font-size:8px;
+  }
+  #groupButtons {
+    max-height:112px;
+    overflow:auto;
+    padding-right:2px;
+  }
+  .collapse-btn {
+    width:24px;
+    height:24px;
+    min-height:24px;
+    padding:0;
+    border-radius:7px;
+    font-size:13px;
+    font-weight:800;
+  }
+  .mind-grid {
+    background:#f8fbfe;
+    background-image:none;
+  }
+  .l1-section {
+    background:#fff;
+    border-radius:12px;
+    padding:14px 14px 16px;
+  }
+  .l1-backbone {
+    color:#0b1628;
+    background:#f3f7fc !important;
+    border:1px solid #d7e1ee;
+    border-left:6px solid #005bac;
+    border-radius:10px;
+    min-height:54px;
+  }
+  .l1-backbone.제품군 {
+    border-left-color:#008c95;
+  }
+  .l1-backbone.공정군 {
+    border-left-color:#5265c9;
+  }
+  .l1-backbone:after {
+    display:none;
+  }
+  .l1-title b {
+    color:#001b44;
+    font-size:24px;
+    font-weight:700;
+  }
+  .l1-label {
+    background:#e7eef7;
+    color:#27384d;
+    font-size:10px;
+    font-weight:600;
+    border-radius:5px;
+  }
+  .l1-metrics span {
+    color:#27384d;
+    background:#fff;
+    border-color:#d7e1ee;
+    font-size:11px;
+    font-weight:600;
+  }
+  .l1-metrics span:first-child {
+    color:#92400e;
+    background:#fff7ed;
+    border-color:#fed7aa;
+  }
+  .l2-grid:before { display:none; }
+  .l2-grid { border-left:0; }
+  .l2-card {
+    min-height:0;
+    border-color:#d9e4f0;
+    border-radius:10px;
+    background:#fff;
+  }
+  .l2-card:before {
+    background:#9db6d0;
+    width:2px;
+    opacity:.75;
+  }
+  .l2-card:after {
+    background:#c5d5e8;
+    opacity:.75;
+  }
+  .l2-head {
+    background:#fff;
+    padding:9px 12px;
+  }
+  .l2-label {
+    background:#e7eef7;
+    color:#27384d;
+    font-size:10px;
+    font-weight:600;
+    border-radius:5px;
+  }
+  .l2-head b {
+    font-size:16px;
+    font-weight:700;
+  }
+  .root-pill,
+  .badge,
+  .owner {
+    font-weight:600;
+  }
+  .root-pill {
+    font-size:11px;
+    height:26px;
+  }
+  .l3-list {
+    gap:10px;
+  }
+  .l3-row {
+    border-radius:9px;
+    border-color:#dce6f1;
+  }
+  .l3-main {
+    min-height:46px;
+    padding:10px;
+  }
+  .l3-title b {
+    font-size:14px;
+    font-weight:700;
+  }
+  .l3-row.core3 .l3-main {
+    background:#eef6ff;
+    box-shadow:inset 4px 0 0 var(--blue);
+  }
+
+  /* cleaner hierarchy treatment */
+  .l2-grid {
+    gap:18px;
+  }
+  .l2-card {
+    display:block;
+    overflow:visible;
+    border:0;
+    border-left:2px solid #d7e1ee;
+    border-radius:0;
+    background:transparent;
+    padding-left:12px;
+  }
+  .l2-card:before,
+  .l2-card:after {
+    display:none;
+  }
+  .l2-head {
+    padding:4px 0 8px;
+    border-bottom:0;
+    background:transparent;
+  }
+  .l2-head .root-pill {
+    min-width:auto;
+    height:24px;
+    padding:0 9px;
+    font-size:11px;
+    background:#fff7ed;
+    color:#92400e;
+    border:1px solid #fed7aa;
+  }
+  .l3-list {
+    margin-left:12px;
+    padding:4px 0 0 14px;
+    border-left:1px solid #e0e8f2;
+    gap:8px;
+  }
+  .l3-row {
+    overflow:visible;
+    border:0;
+    border-left:2px solid #c8d7e8;
+    border-radius:0;
+    background:transparent;
+    padding-left:10px;
+  }
+  .l3-row:before {
+    left:-16px;
+    width:14px;
+    background:#d4e0ec;
+  }
+  .l3-main {
+    min-height:36px;
+    padding:5px 0 7px;
+  }
+  .l3-row.core3 .l3-main {
+    margin-left:-10px;
+    padding:7px 10px 8px;
+    background:linear-gradient(90deg,#eaf4ff 0%,#f6fbff 100%);
+    border:1px solid #c8ddf4;
+    border-radius:8px;
+    box-shadow:0 1px 0 rgba(0,91,172,.06);
+  }
+  .l3-row.core3 {
+    border-left-color:#005bac;
+  }
+  .l3-title b {
+    font-size:13px;
+  }
+  .l3-label {
+    display:inline-flex;
+    align-items:center;
+    height:20px;
+    padding:0 7px;
+    border-radius:5px;
+    background:#eef4fa;
+    color:#52657a;
+    border:1px solid #d8e3ef;
+    font-size:10px;
+    font-weight:600;
+    flex:0 0 auto;
+  }
+  .l1-section {
+    border:0;
+    border-top:1px solid #d7e1ee;
+    border-radius:0;
+    background:transparent;
+    padding:16px 10px 18px;
+  }
+  .l1-section:first-child {
+    border-top:0;
+  }
+  .l1-backbone {
+    margin-left:0;
+    min-height:46px;
+    padding:7px 12px;
+  }
+  .l1-backbone .collapse-btn {
+    width:22px;
+    height:22px;
+    min-height:22px;
+    padding:0;
+  }
+  .l1-label {
+    height:18px;
+    padding:0 6px;
+    font-size:9px;
+  }
+  .l1-metrics span {
+    height:22px;
+    padding:0 8px;
+    font-size:10px;
+  }
+  .l2-grid {
+    margin-left:28px;
+    padding-top:16px;
+  }
+  .l2-card {
+    border-left-color:#c4d2e2;
+  }
+  .l2-card:before {
+    content:"";
+    display:block;
+    position:absolute;
+    left:-14px;
+    top:17px;
+    width:14px;
+    height:1px;
+    background:#c4d2e2;
+  }
+  .l3-list {
+    margin-left:18px;
+    border-left-color:#d2deea;
+  }
+  .l3-row {
+    border-left-color:#bdcde0;
+  }
+  .l4-list {
+    margin-left:18px;
+  }
+  .l4-list {
+    margin-left:12px;
+    padding:4px 0 6px 14px;
+    gap:4px;
+    border-top:0;
+    background:transparent;
+    background-image:none;
+  }
+  .l4-list:before {
+    left:0;
+    top:5px;
+    bottom:7px;
+    width:1px;
+    background:#d9e4f0;
+    opacity:1;
+  }
+  .l4-item {
+    min-height:32px;
+    padding:4px 7px;
+    border:0;
+    border-bottom:1px solid #edf2f7;
+    border-radius:0;
+    background:transparent;
+    font-weight:650;
+  }
+  .l4-item:before {
+    left:-14px;
+    width:13px;
+    background:#d9e4f0;
+  }
+  .l4-item.core4 {
+    border:1px solid #cbeceb;
+    border-radius:8px;
+    background:#f1fbfa;
+    box-shadow:inset 3px 0 0 #008c95;
+  }
+  .l4-item.included {
+    border-color:#edf2f7;
+    background:transparent;
+    box-shadow:none;
+  }
+  .badge {
+    font-size:11px;
+    height:24px;
+  }
+  .l4-list {
+    background:#fff;
+    background-image:none;
+    gap:7px;
+  }
+  .l4-item {
+    min-height:40px;
+    font-size:12px;
+    border-radius:8px;
+  }
+  .l4-copy b {
+    font-size:12px;
+    font-weight:650;
+  }
+  .l4-copy span {
+    font-size:11px;
+  }
+  .rep-chip {
+    font-size:10px;
+    max-width:118px;
+  }
+  .owner {
+    font-size:10px;
+    background:#f2f6fb;
+  }
+  .chart-title b {
+    font-size:15px;
+    font-weight:700;
+  }
+  .bar-row,
+  .legend-stat,
+  .heat,
+  .stack-row {
+    font-size:12px;
+    font-weight:600;
+  }
+  .l2-card:before {
+    display:block;
+  }
+  .l4-list {
+    margin-left:18px;
+    background:transparent;
+    gap:5px;
+  }
+  .l4-item {
+    border-radius:0;
+    background:#f6f8fb;
+    align-items:start;
+  }
+  .l4-item:not(.core4) {
+    border:1px solid #e1e8f0;
+    border-radius:8px;
+    background:#f6f8fb;
+  }
+  .l4-title-line b {
+    white-space:normal;
+    overflow:visible;
+    text-overflow:clip;
+  }
+  .l4-item.core4 {
+    border-radius:8px;
+    background:#f1fbfa;
+    box-shadow:none;
+  }
+  .l4-item.included {
+    border:1px solid #e1e8f0;
+    border-radius:8px;
+    background:#f6f8fb;
+  }
+  .l4-list {
+    gap:4px;
+  }
+  .l4-item {
+    min-height:28px;
+    padding:3px 6px;
+    column-gap:6px;
+    align-items:center;
+    font-size:11px;
+    grid-template-columns:minmax(0,1fr) 72px;
+  }
+  .l4-item.core4 {
+    min-height:28px;
+    grid-template-columns:16px minmax(0,1fr) 72px;
+  }
+  .l4-title-line {
+    gap:5px;
+    row-gap:2px;
+  }
+  .l4-title-line b,
+  .l4-copy b {
+    font-size:12px;
+    line-height:1.22;
+  }
+  .l3-title b {
+    font-size:14px;
+    line-height:1.24;
+  }
+  .l3-main {
+    min-height:30px;
+    padding:3px 0 4px;
+  }
+  .l3-row.core3 .l3-main {
+    min-height:32px;
+    padding:4px 8px;
+    border-radius:7px;
+  }
+  .l3-main .node-head {
+    gap:6px;
+  }
+  .l3-main .collapse-btn {
+    width:20px;
+    height:20px;
+    min-height:20px;
+    padding:0;
+    border-radius:6px;
+    font-size:11px;
+  }
+  .l3-label {
+    height:18px;
+    padding:0 6px;
+    font-size:9px;
+  }
+  .mark,
+  .core-star {
+    width:16px;
+    height:16px;
+    border-radius:5px;
+    font-size:10px;
+    align-items:center;
+    justify-content:center;
+    line-height:1;
+  }
+  .rep-chip,
+  .owner {
+    min-height:16px;
+    padding:1px 5px;
+    line-height:1;
+    border-radius:999px;
+  }
+  .rep-chip {
+    display:inline-block;
+    flex:0 0 auto;
+    max-width:168px;
+    height:auto;
+    font-size:8.8px !important;
+    font-weight:650;
+    line-height:1.08;
+    white-space:normal;
+    overflow-wrap:anywhere;
+    overflow:visible;
+    text-overflow:clip;
+  }
+  .owner {
+    height:16px;
+    max-width:72px;
+    font-size:9px;
+  }
+  .owners {
+    gap:1px;
+  }
+  @media(max-width:1160px){.workspace{grid-template-columns:1fr}.l2-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.kpis{grid-template-columns:1fr}.chart-grid{grid-template-columns:1fr}}
+  @media(max-width:760px){.hero{grid-template-columns:1fr}.l2-grid,.kpis{grid-template-columns:1fr}.kpi-group.level .kpi-row,.kpi-group.core .kpi-row{grid-template-columns:1fr 1fr}.app{padding:12px}.scope-chart{grid-template-columns:1fr}.heat-grid{grid-template-columns:110px repeat(3,1fr)}.l1-backbone{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+  <section class="hero">
+    <h1>PTRS ↔ Core Tech</h1>
+  </section>
+
+  <section class="kpis" id="kpis"></section>
+
+  <section class="workspace">
+    <aside class="panel">
+      <div class="panel-head"><strong>필터</strong><small>클릭하면 화면 변경</small></div>
+      <div class="filters">
+        <div class="filter-block">
+          <h3>Core</h3>
+          <div class="btns">
+            <button data-filter="core" data-value="all" class="active">전체</button>
+            <button data-filter="core" data-value="core">Core만</button>
+            <button data-filter="core" data-value="non">일반기술만</button>
+            <button data-filter="core" data-value="l3" class="core3">L3 Core</button>
+            <button data-filter="core" data-value="l4" class="core4">L4 Core</button>
+          </div>
+        </div>
+        <div class="filter-block">
+          <h3>데이터</h3>
+          <div class="btns data-tools">
+            <button id="importXlsx">XLSX 가져오기</button>
+            <button id="exportXlsx">XLSX 내보내기</button>
+            <button id="importJson">JSON 가져오기</button>
+            <button id="exportJson">JSON 내보내기</button>
+          </div>
+          <input class="file-input" id="xlsxFile" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
+          <input class="file-input" id="jsonFile" type="file" accept=".json,application/json" />
+          <div class="data-note" id="dataNote">템플릿 입력 후 XLSX로 바로 반영</div>
+        </div>
+        <div class="filter-block">
+          <h3>트리 편집</h3>
+          <div class="edit-panel empty" id="editPanel">Level 3 또는 Level 4 기술을 클릭하면 Core 지정과 정보를 바로 수정할 수 있습니다.</div>
+        </div>
+        <div class="filter-block">
+          <h3>Level 1</h3>
+          <div class="btns">
+            <button data-filter="level1" data-value="all" class="active">전체</button>
+            <button data-filter="level1" data-value="산업군">산업군</button>
+            <button data-filter="level1" data-value="제품군">제품군</button>
+            <button data-filter="level1" data-value="공정군">공정군</button>
+          </div>
+        </div>
+        <div class="filter-block">
+          <h3>성장</h3>
+          <div class="btns">
+            <button data-filter="category" data-value="all" class="active">전체</button>
+            <button data-filter="category" data-value="시장성장">시장성장</button>
+            <button data-filter="category" data-value="기술성장">기술성장</button>
+            <button data-filter="category" data-value="미래성장">미래성장</button>
+          </div>
+        </div>
+        <div class="filter-block">
+          <h3>그룹</h3>
+          <div class="btns" id="groupButtons"></div>
+        </div>
+        <div class="filter-block">
+          <h3>접기</h3>
+          <div class="btns tree-controls">
+            <button data-collapse-preset="open" class="active">펼침</button>
+            <button data-collapse-preset="l2">L2 접기</button>
+            <button data-collapse-preset="l3">L3 접기</button>
+            <button data-collapse-preset="l4">L4 접기</button>
+          </div>
+        </div>
+        <div class="filter-block">
+          <h3>검색</h3>
+          <input id="search" placeholder="기술명 · 그룹 · 팀" />
+        </div>
+        <div class="filter-block">
+          <h3>표기</h3>
+          <div class="legend">
+            <div class="legend-row"><span class="swatch l3"></span><span>Level 3 Core</span></div>
+            <div class="legend-row"><span class="swatch l4"></span><span>Level 4 Core</span></div>
+            <div class="legend-row"><span class="swatch non"></span><span>일반기술</span></div>
+            <div class="legend-row"><span class="core-star market">★</span><span>시장성장 Core</span></div>
+            <div class="legend-row"><span class="core-star tech">★</span><span>기술성장 Core</span></div>
+            <div class="legend-row"><span class="core-star future">★</span><span>미래성장 Core</span></div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="panel">
+      <div class="panel-head"><strong>기술 체계 맵</strong><small>Level 1 아래 Level 2 모듈 보기</small></div>
+      <div class="map-toolbar">
+        <div class="status" id="status"></div>
+        <div class="view-switch">
+          <button id="reset">초기화</button>
+        </div>
+      </div>
+      <div class="mind-grid" id="mindGrid"></div>
+    </main>
+  </section>
+
+  <section class="panel analytics-panel">
+    <div class="panel-head">
+      <strong>Core Tech 통계</strong>
+      <small>Core 범위 · 성장 카테고리 · 조직 분포</small>
+    </div>
+    <div class="chart-grid" id="charts"></div>
+  </section>
+</div>
+
+<script>
+let rows = [];
+const DATA_URL = "data/core-tech-data.json";
+const STORAGE_KEY = "ptrs-core-tech-rows-v1";
+const FALLBACK_ROWS = [{"l1":"산업군","l2":"에너지 산업","l3":"수소/극저온 소재","l4":"LNG용 고Mn강 설계","coreLevel":3,"category":"미래성장","group":"후판연구그룹","team":"에너지강재팀","program":"전략기술","rep":"대표기술: 고Mn 합금설계, 극저온 인성 확보","owners":[{"group":"후판연구그룹","team":"에너지강재팀"},{"group":"재료해석그룹","team":"저온물성팀"}]},{"l1":"산업군","l2":"에너지 산업","l3":"수소/극저온 소재","l4":"극저온 인성 예측 모델","coreLevel":0,"category":"기술성장","group":"재료해석그룹","team":"물성예측팀","program":"차세대기술","rep":"대표기술: 저온 파괴모델, 미세조직-인성 예측","owners":[{"group":"재료해석그룹","team":"물성예측팀"},{"group":"후판연구그룹","team":"에너지강재팀"}]},{"l1":"산업군","l2":"에너지 산업","l3":"수소/극저온 소재","l4":"액화수소 저장용 강재 평가","coreLevel":0,"category":"미래성장","group":"평가해석그룹","team":"저온평가팀","program":"-","rep":"대표기술: 액화수소 환경 평가, 저온 시험법"},{"l1":"산업군","l2":"에너지 산업","l3":"배터리 소재","l4":"열처리 생략형 Ni-X 도금","coreLevel":4,"category":"기술성장","group":"도금연구그룹","team":"배터리소재팀","program":"수익기술","rep":"대표기술: Ni-X 조성 제어, 열처리 생략 공정","owners":[{"group":"도금연구그룹","team":"배터리소재팀"},{"group":"공정설비그룹","team":"연속도금팀"}]},{"l1":"산업군","l2":"에너지 산업","l3":"배터리 소재","l4":"고내식 표면 박막 제어","coreLevel":4,"category":"기술성장","group":"도금연구그룹","team":"표면처리팀","program":"전략기술","rep":"대표기술: 박막 균일화, 내식 수명 예측"},{"l1":"산업군","l2":"에너지 산업","l3":"배터리 소재","l4":"배터리 케이스 부식 평가","coreLevel":0,"category":"시장성장","group":"이용기술그룹","team":"부식평가팀","program":"-","rep":"대표기술: 전해액 노출 평가, 고객 사용환경 시험"},{"l1":"산업군","l2":"모빌리티 산업","l3":"자동차 경량화","l4":"1.5GPa급 냉연강","coreLevel":3,"category":"시장성장","group":"자동차소재연구그룹","team":"차체강재팀","program":"수익기술","rep":"대표기술: 고강도-연성 밸런스, 충돌안전 설계","owners":[{"group":"자동차소재연구그룹","team":"차체강재팀"},{"group":"재료설계그룹","team":"상변태팀"}]},{"l1":"산업군","l2":"모빌리티 산업","l3":"자동차 경량화","l4":"성형 균열 예측","coreLevel":0,"category":"기술성장","group":"이용기술그룹","team":"성형평가팀","program":"전략기술","rep":"대표기술: FLD/CAE 예측, 고객 부품 성형성 평가","owners":[{"group":"이용기술그룹","team":"성형평가팀"},{"group":"AI공정그룹","team":"예측모델팀"}]},{"l1":"산업군","l2":"모빌리티 산업","l3":"전기차 구동소재","l4":"고효율 전기강판","coreLevel":4,"category":"시장성장","group":"전기강판연구그룹","team":"모터소재팀","program":"수익기술","rep":"대표기술: 철손 저감, 자구 제어"},{"l1":"산업군","l2":"모빌리티 산업","l3":"전기차 구동소재","l4":"모터 코어 손실 평가","coreLevel":0,"category":"시장성장","group":"전기강판연구그룹","team":"평가팀","program":"-","rep":"대표기술: 모터 코어 시험, 손실 분석"},{"l1":"산업군","l2":"건설/인프라 산업","l3":"해양 구조재","l4":"해양플랜트 후판 용접성","coreLevel":3,"category":"미래성장","group":"후판연구그룹","team":"해양강재팀","program":"전략기술","rep":"대표기술: 대입열 용접성, 저온 CTOD"},{"l1":"산업군","l2":"건설/인프라 산업","l3":"내진 구조재","l4":"고인성 H형강","coreLevel":4,"category":"시장성장","group":"형강연구그룹","team":"건설강재팀","program":"수익기술","rep":"대표기술: 항복비 제어, 내진 성능 안정화"},{"l1":"제품군","l2":"고급강 제품","l3":"고강도/고성형 강재","l4":"상변태 제어 모델","coreLevel":3,"category":"기술성장","group":"재료설계그룹","team":"상변태팀","program":"전략기술","rep":"대표기술: TRIP/TWIP 거동 예측, 열처리 조건 설계"},{"l1":"제품군","l2":"고급강 제품","l3":"고강도/고성형 강재","l4":"용접부 성능 평가","coreLevel":0,"category":"기술성장","group":"이용기술그룹","team":"용접평가팀","program":"-","rep":"대표기술: 용접부 강도, HAZ 성능 평가"},{"l1":"제품군","l2":"고급강 제품","l3":"고내식 표면처리","l4":"Zn-Al-Mg 도금조직 제어","coreLevel":4,"category":"시장성장","group":"도금연구그룹","team":"표면처리팀","program":"수익기술","rep":"대표기술: 삼원계 도금조직, 부식 생성물 제어"},{"l1":"제품군","l2":"친환경 제품","l3":"저탄소 제품 인증","l4":"고객 LCA 데이터 패키지","coreLevel":4,"category":"미래성장","group":"친환경솔루션그룹","team":"LCA팀","program":"비전기술","rep":"대표기술: 제품별 탄소계수, 고객 인증 데이터"},{"l1":"제품군","l2":"친환경 제품","l3":"재활용 소재","l4":"스크랩 기반 품질 편차 관리","coreLevel":0,"category":"미래성장","group":"원료공정그룹","team":"스크랩기술팀","program":"-","rep":"대표기술: 스크랩 혼입률 관리, 품질 편차 분석"},{"l1":"공정군","l2":"저탄소 공정","l3":"수소환원/전기로","l4":"DRI 품질 안정화","coreLevel":3,"category":"미래성장","group":"저탄소공정그룹","team":"저탄소제강팀","program":"비전기술","rep":"대표기술: DRI 환원도 제어, 잔류원소 관리","owners":[{"group":"저탄소공정그룹","team":"저탄소제강팀"},{"group":"원료공정그룹","team":"DRI품질팀"}]},{"l1":"공정군","l2":"저탄소 공정","l3":"수소환원/전기로","l4":"전기로 청정도 제어","coreLevel":0,"category":"기술성장","group":"청정강그룹","team":"개재물제어팀","program":"전략기술","rep":"대표기술: 슬래그 조성, 개재물 저감","owners":[{"group":"청정강그룹","team":"개재물제어팀"},{"group":"저탄소공정그룹","team":"전기로공정팀"}]},{"l1":"공정군","l2":"저탄소 공정","l3":"에너지 저감","l4":"열회수 최적화","coreLevel":4,"category":"미래성장","group":"공정설비그룹","team":"에너지효율팀","program":"비전기술","rep":"대표기술: 폐열 회수, 가열로 에너지 최적화"},{"l1":"공정군","l2":"AI/DT 공정","l3":"공정 예측/자동제어","l4":"품질 이상탐지 모델","coreLevel":4,"category":"기술성장","group":"AI공정그룹","team":"공정모델링팀","program":"차세대기술","rep":"대표기술: 이상탐지 알고리즘, 품질 조기경보"},{"l1":"공정군","l2":"AI/DT 공정","l3":"공정 예측/자동제어","l4":"AI 합금-공정 추천","coreLevel":4,"category":"미래성장","group":"AI공정그룹","team":"AI설계팀","program":"차세대기술","rep":"대표기술: 조성-공정-성능 추천, 실험조건 최적화","owners":[{"group":"AI공정그룹","team":"AI설계팀"},{"group":"재료설계그룹","team":"합금설계팀"}]},{"l1":"공정군","l2":"AI/DT 공정","l3":"라인 데이터 정합","l4":"센서 데이터 표준화","coreLevel":0,"category":"기술성장","group":"AI공정그룹","team":"데이터플랫폼팀","program":"-","rep":"대표기술: 센서 태깅, 라인 데이터 품질관리"}];
+
+function normalizeRows(payload){
+  const source = Array.isArray(payload) ? payload : (payload.rows || []);
+  return source.map((r) => {
+    const owners = Array.isArray(r.owners) && r.owners.length
+      ? r.owners
+      : [{ group: r.group || "", team: r.team || "" }];
+    return {
+      l1: r.l1 || "",
+      l2: r.l2 || "",
+      l3: r.l3 || "",
+      l4: r.l4 || "",
+      coreLevel: Number(r.coreLevel || 0),
+      category: r.category || "",
+      group: r.group || owners[0]?.group || "",
+      team: r.team || owners[0]?.team || "",
+      program: r.research_stage || r.program || "-",
+      rep: r.rep || "",
+      owners,
+    };
+  }).filter(r => r.l1 && r.l2 && r.l3 && r.l4);
+}
+
+function clean(value){
+  return value == null ? "" : String(value).trim();
+}
+function firstValue(row, names){
+  for (const name of names) {
+    const value = clean(row[name]);
+    if (value) return value;
+  }
+  return "";
+}
+function splitOwners(text){
+  return clean(text).split(/[;,]/).map(v => v.trim()).filter(Boolean);
+}
+function resetFiltersAfterDataLoad(){
+  Object.assign(state, { core:"all", level1:"all", category:"all", group:"all", search:"" });
+  clearCollapsed();
+  collapsePreset = "open";
+  setCollapsePresetActive("open");
+  $("search").value = "";
+  document.querySelectorAll("button[data-filter]").forEach(b => b.classList.toggle("active", b.dataset.value === "all"));
+}
+function rowsForExport(){
+  return rows.map(({ program, ...rest }) => ({
+    ...rest,
+    research_stage: program || "-",
+  }));
+}
+function saveRowsToStorage(label){
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      schemaVersion: 1,
+      source: label || "browser import",
+      updatedAt: new Date().toISOString(),
+      rows: rowsForExport(),
+    }));
+  } catch (error) {
+    console.warn("Unable to persist imported data", error);
+  }
+}
+function applyDataPayload(payload, label, persist = true){
+  const nextRows = normalizeRows(payload);
+  if (!nextRows.length) throw new Error("가져온 파일에서 표시 가능한 기술 행을 찾지 못했습니다.");
+  rows = nextRows;
+  if (persist) saveRowsToStorage(label);
+  resetFiltersAfterDataLoad();
+  render();
+  $("dataNote").textContent = `${label} 반영 완료 · ${rows.length}개 기술`;
+}
+function downloadBlob(filename, blob){
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+function exportJson(){
+  const payload = {
+    schemaVersion: 1,
+    source: "PTRS Core Tech browser export",
+    updatedAt: new Date().toISOString(),
+    rows: rowsForExport(),
+  };
+  downloadBlob("ptrs-core-tech-data.json", new Blob([JSON.stringify(payload, null, 2)], { type:"application/json;charset=utf-8" }));
+}
+async function importJsonFile(file){
+  const payload = JSON.parse(await file.text());
+  applyDataPayload(payload, file.name);
+}
+function columnName(index){
+  let name = "";
+  let n = index + 1;
+  while (n > 0) {
+    const r = (n - 1) % 26;
+    name = String.fromCharCode(65 + r) + name;
+    n = Math.floor((n - 1) / 26);
+  }
+  return name;
+}
+function columnIndex(cellRef){
+  const letters = String(cellRef || "").match(/[A-Z]+/i)?.[0] || "A";
+  return letters.toUpperCase().split("").reduce((n, ch) => n * 26 + ch.charCodeAt(0) - 64, 0) - 1;
+}
+function xmlEscape(value){
+  return clean(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+function normalizeZipPath(path){
+  const parts = [];
+  for (const part of path.split("/")) {
+    if (!part || part === ".") continue;
+    if (part === "..") parts.pop();
+    else parts.push(part);
+  }
+  return parts.join("/");
+}
+function resolveZipTarget(baseDir, target){
+  const cleanTarget = String(target || "");
+  if (cleanTarget.startsWith("/")) return normalizeZipPath(cleanTarget.slice(1));
+  return normalizeZipPath(`${baseDir}/${cleanTarget}`);
+}
+async function inflateZipBytes(bytes){
+  for (const format of ["deflate-raw", "deflate"]) {
+    try {
+      const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream(format));
+      return new Uint8Array(await new Response(stream).arrayBuffer());
+    } catch (error) {
+      if (format === "deflate") throw error;
+    }
+  }
+  return bytes;
+}
+async function unzipXlsx(buffer){
+  const bytes = new Uint8Array(buffer);
+  const view = new DataView(buffer);
+  let eocd = -1;
+  for (let i = bytes.length - 22; i >= Math.max(0, bytes.length - 66000); i--) {
+    if (view.getUint32(i, true) === 0x06054b50) {
+      eocd = i;
+      break;
+    }
+  }
+  if (eocd < 0) throw new Error("XLSX ZIP 구조를 찾지 못했습니다.");
+  const count = view.getUint16(eocd + 10, true);
+  let offset = view.getUint32(eocd + 16, true);
+  const entries = {};
+  for (let i = 0; i < count; i++) {
+    if (view.getUint32(offset, true) !== 0x02014b50) break;
+    const method = view.getUint16(offset + 10, true);
+    const compressedSize = view.getUint32(offset + 20, true);
+    const nameLen = view.getUint16(offset + 28, true);
+    const extraLen = view.getUint16(offset + 30, true);
+    const commentLen = view.getUint16(offset + 32, true);
+    const localOffset = view.getUint32(offset + 42, true);
+    const name = new TextDecoder().decode(bytes.slice(offset + 46, offset + 46 + nameLen));
+    const localNameLen = view.getUint16(localOffset + 26, true);
+    const localExtraLen = view.getUint16(localOffset + 28, true);
+    const dataStart = localOffset + 30 + localNameLen + localExtraLen;
+    const raw = bytes.slice(dataStart, dataStart + compressedSize);
+    entries[name] = method === 0 ? raw : await inflateZipBytes(raw);
+    offset += 46 + nameLen + extraLen + commentLen;
+  }
+  return entries;
+}
+function parseXml(bytes){
+  return new DOMParser().parseFromString(new TextDecoder().decode(bytes), "application/xml");
+}
+function elementsByLocalName(node, localName){
+  return Array.from(node.getElementsByTagName("*")).filter(el => el.localName === localName);
+}
+function textFromCell(cell, sharedStrings){
+  const type = cell.getAttribute("t");
+  if (type === "s") {
+    const idx = Number(elementsByLocalName(cell, "v")[0]?.textContent || 0);
+    return sharedStrings[idx] || "";
+  }
+  if (type === "inlineStr") return elementsByLocalName(cell, "is")[0]?.textContent || "";
+  return elementsByLocalName(cell, "v")[0]?.textContent || cell.textContent || "";
+}
+function parseSheetTable(entries, sheetPath, sharedStrings){
+  const xml = parseXml(entries[sheetPath]);
+  const parsedRows = elementsByLocalName(xml, "row").map(row => {
+    const values = [];
+    elementsByLocalName(row, "c").forEach(cell => {
+      values[columnIndex(cell.getAttribute("r"))] = clean(textFromCell(cell, sharedStrings));
+    });
+    return values;
+  }).filter(row => row.some(Boolean));
+  if (!parsedRows.length) return [];
+  const headers = parsedRows[0].map(clean);
+  return parsedRows.slice(1).map(row => {
+    const item = {};
+    headers.forEach((header, i) => {
+      if (header) item[header] = row[i] || "";
+    });
+    return item;
+  }).filter(row => Object.values(row).some(Boolean));
+}
+async function readWorkbookTables(file){
+  const entries = await unzipXlsx(await file.arrayBuffer());
+  const workbook = parseXml(entries["xl/workbook.xml"]);
+  const rels = parseXml(entries["xl/_rels/workbook.xml.rels"]);
+  const relMap = {};
+  elementsByLocalName(rels, "Relationship").forEach(rel => {
+    relMap[rel.getAttribute("Id")] = resolveZipTarget("xl", rel.getAttribute("Target"));
+  });
+  const sharedStrings = entries["xl/sharedStrings.xml"]
+    ? elementsByLocalName(parseXml(entries["xl/sharedStrings.xml"]), "si").map(si => si.textContent || "")
+    : [];
+  const tables = {};
+  elementsByLocalName(workbook, "sheet").forEach(sheet => {
+    const name = sheet.getAttribute("name");
+    const relId = sheet.getAttribute("r:id") || sheet.getAttributeNS("http://schemas.openxmlformats.org/officeDocument/2006/relationships", "id");
+    const path = relMap[relId];
+    if (name && path && entries[path]) tables[name] = parseSheetTable(entries, path, sharedStrings);
+  });
+  return tables;
+}
+function buildOwnerIndex(ownerRows){
+  const index = {};
+  ownerRows.forEach(row => {
+    const techId = clean(row.tech_id);
+    if (!techId) return;
+    (index[techId] ||= []).push({
+      group: clean(row.research_group),
+      team: clean(row.team),
+      owner: clean(row.owner),
+    });
+  });
+  return index;
+}
+function ownerRowsFromMaster(row){
+  const owners = [];
+  ["", "_2", "_3"].forEach(suffix => {
+    const owner = {
+      group: clean(row[`research_group${suffix}`]),
+      team: clean(row[`team${suffix}`]),
+      owner: clean(row[`owner${suffix}`]),
+    };
+    if (owner.group || owner.team || owner.owner) owners.push(owner);
+  });
+  return owners.length ? owners : [{ group:"", team:"", owner:"" }];
+}
+function convertTemplateTables(tables){
+  const master = tables["01_Tech_Master"] || tables.Tech_Master || [];
+  const coreRows = tables["02_Core_Definition"] || tables.Core_Definition || [];
+  const ownerRows = tables["03_Owner_Link"] || tables.Owner_Link || [];
+  const ownerIndex = buildOwnerIndex(ownerRows);
+  const l3Core = new Map();
+  const l4Core = new Map();
+  coreRows.forEach(row => {
+    const level = clean(row.core_level);
+    const key3 = [row.level1, row.level2, row.level3].map(clean).join("|");
+    const key4 = [row.level1, row.level2, row.level3, row.level4].map(clean).join("|");
+    if (level === "Level 3 Core") l3Core.set(key3, row);
+    if (level === "Level 4 Core") l4Core.set(key4, row);
+  });
+  const usedL3 = new Set();
+  const outputRows = [];
+  master.forEach(row => {
+    if (clean(row.active_yn).toUpperCase() === "N") return;
+    const l1 = clean(row.level1);
+    const l2 = clean(row.level2);
+    const l3 = clean(row.level3);
+    const l4 = clean(row.level4);
+    if (!l1 || !l2 || !l3 || !l4) return;
+    const key3 = [l1, l2, l3].join("|");
+    const key4 = [l1, l2, l3, l4].join("|");
+    let coreLevel = 0;
+    let core = null;
+    if (l3Core.has(key3) && !usedL3.has(key3)) {
+      coreLevel = 3;
+      core = l3Core.get(key3);
+      usedL3.add(key3);
+    } else if (l4Core.has(key4)) {
+      coreLevel = 4;
+      core = l4Core.get(key4);
+    }
+    const owners = ownerIndex[clean(row.tech_id)] || ownerRowsFromMaster(row);
+    const primary = owners[0] || {};
+    outputRows.push({
+      l1, l2, l3, l4,
+      coreLevel,
+      category: core ? clean(core.growth_category) : "",
+      group: primary.group || "",
+      team: primary.team || "",
+      program: firstValue(core || {}, ["research_stage", "related_program"]) || firstValue(row, ["research_stage", "related_program"]) || "-",
+      rep: clean(row["대표기술명"]),
+      tags: (core ? clean(core.core_tags) : "") || clean(row["핵심기술_태그"]),
+      owners: owners.filter(o => o.group || o.team || o.owner),
+    });
+  });
+  return { schemaVersion:1, source:"browser xlsx import", updatedAt:new Date().toISOString(), rows:outputRows };
+}
+async function importXlsxFile(file){
+  const tables = await readWorkbookTables(file);
+  applyDataPayload(convertTemplateTables(tables), file.name);
+}
+function crc32(bytes){
+  let crc = -1;
+  for (const byte of bytes) {
+    crc ^= byte;
+    for (let i = 0; i < 8; i++) crc = (crc >>> 1) ^ (0xedb88320 & -(crc & 1));
+  }
+  return (crc ^ -1) >>> 0;
+}
+function writeU16(bytes, offset, value){
+  bytes[offset] = value & 255;
+  bytes[offset + 1] = (value >>> 8) & 255;
+}
+function writeU32(bytes, offset, value){
+  bytes[offset] = value & 255;
+  bytes[offset + 1] = (value >>> 8) & 255;
+  bytes[offset + 2] = (value >>> 16) & 255;
+  bytes[offset + 3] = (value >>> 24) & 255;
+}
+function createZip(entries){
+  const encoder = new TextEncoder();
+  const localParts = [];
+  const centralParts = [];
+  let offset = 0;
+  entries.forEach(entry => {
+    const nameBytes = encoder.encode(entry.name);
+    const data = encoder.encode(entry.content);
+    const crc = crc32(data);
+    const local = new Uint8Array(30 + nameBytes.length + data.length);
+    writeU32(local, 0, 0x04034b50);
+    writeU16(local, 4, 20);
+    writeU16(local, 8, 0);
+    writeU32(local, 14, crc);
+    writeU32(local, 18, data.length);
+    writeU32(local, 22, data.length);
+    writeU16(local, 26, nameBytes.length);
+    local.set(nameBytes, 30);
+    local.set(data, 30 + nameBytes.length);
+    localParts.push(local);
+    const central = new Uint8Array(46 + nameBytes.length);
+    writeU32(central, 0, 0x02014b50);
+    writeU16(central, 4, 20);
+    writeU16(central, 6, 20);
+    writeU16(central, 10, 0);
+    writeU32(central, 16, crc);
+    writeU32(central, 20, data.length);
+    writeU32(central, 24, data.length);
+    writeU16(central, 28, nameBytes.length);
+    writeU32(central, 42, offset);
+    central.set(nameBytes, 46);
+    centralParts.push(central);
+    offset += local.length;
+  });
+  const centralOffset = offset;
+  const centralSize = centralParts.reduce((sum, part) => sum + part.length, 0);
+  const eocd = new Uint8Array(22);
+  writeU32(eocd, 0, 0x06054b50);
+  writeU16(eocd, 8, entries.length);
+  writeU16(eocd, 10, entries.length);
+  writeU32(eocd, 12, centralSize);
+  writeU32(eocd, 16, centralOffset);
+  return new Blob([...localParts, ...centralParts, eocd], { type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+}
+function sheetXml(table){
+  const rowsXml = table.map((row, r) => `<row r="${r + 1}">${row.map((value, c) => `<c r="${columnName(c)}${r + 1}" t="inlineStr"><is><t>${xmlEscape(value)}</t></is></c>`).join("")}</row>`).join("");
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>${rowsXml}</sheetData></worksheet>`;
+}
+function exportWorkbookTables(){
+  const techHeaders = ["tech_id","level1","level2","level3","level4","기술명_약칭","대표기술명","핵심기술_태그","research_group","team","owner","research_group_2","team_2","owner_2","research_group_3","team_3","owner_3","research_stage","sort_order","active_yn","notes"];
+  const coreHeaders = ["core_id","core_level","level1","level2","level3","level4","core_tech_name","core_tags","growth_category","research_stage","research_group","team","owner","selection_reason","priority","notes"];
+  const ownerHeaders = ["tech_id","level1","level2","level3","level4","research_group","team","owner","role","is_primary","notes"];
+  const techIds = new Map();
+  const masterRows = rows.map((r, i) => {
+    const id = `T-${String(i + 1).padStart(4, "0")}`;
+    techIds.set(r, id);
+    const owners = ownersOf(r);
+    return [id, r.l1, r.l2, r.l3, r.l4, "", repText(r), r.tags || "", owners[0]?.group || "", owners[0]?.team || "", owners[0]?.owner || "", owners[1]?.group || "", owners[1]?.team || "", owners[1]?.owner || "", owners[2]?.group || "", owners[2]?.team || "", owners[2]?.owner || "", r.program || "-", i + 1, "Y", ""];
+  });
+  const coreRows = [];
+  const used = new Set();
+  rows.filter(isCore).forEach((r) => {
+    const key = r.coreLevel === 3 ? `${r.l1}|${r.l2}|${r.l3}` : `${r.l1}|${r.l2}|${r.l3}|${r.l4}`;
+    if (used.has(key)) return;
+    used.add(key);
+    const owners = ownersOf(r);
+    coreRows.push([
+      `C-${String(coreRows.length + 1).padStart(4, "0")}`,
+      r.coreLevel === 3 ? "Level 3 Core" : "Level 4 Core",
+      r.l1, r.l2, r.l3, r.coreLevel === 4 ? r.l4 : "",
+      r.coreLevel === 3 ? r.l3 : r.l4,
+      r.tags || "",
+      r.category || "",
+      r.program || "-",
+      owners.map(o => o.group).filter(Boolean).join("; "),
+      owners.map(o => o.team).filter(Boolean).join("; "),
+      owners.map(o => o.owner).filter(Boolean).join("; "),
+      "",
+      coreRows.length + 1,
+      "",
+    ]);
+  });
+  const ownerRows = rows.flatMap((r) => ownersOf(r).map((owner, i) => [techIds.get(r), r.l1, r.l2, r.l3, r.l4, owner.group || "", owner.team || "", owner.owner || "", i === 0 ? "주관" : "협업", i === 0 ? "Y" : "N", ""]));
+  return {
+    "01_Tech_Master": [techHeaders, ...masterRows],
+    "02_Core_Definition": [coreHeaders, ...coreRows],
+    "03_Owner_Link": [ownerHeaders, ...ownerRows],
+    "04_Codebook_Lists": [
+      ["level1","core_level","growth_category","research_stage"],
+      ["산업군","Level 3 Core","시장성장","비전기술"],
+      ["제품군","Level 4 Core","기술성장","차세대기술"],
+      ["공정군","","미래성장","전략기술"],
+      ["","","","수익기술"],
+      ["","","","-"],
+    ],
+  };
+}
+function exportXlsx(){
+  const tables = exportWorkbookTables();
+  const names = Object.keys(tables);
+  const entries = [
+    { name:"[Content_Types].xml", content:`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>${names.map((_, i) => `<Override PartName="/xl/worksheets/sheet${i + 1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join("")}</Types>` },
+    { name:"_rels/.rels", content:`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>` },
+    { name:"xl/workbook.xml", content:`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>${names.map((name, i) => `<sheet name="${xmlEscape(name)}" sheetId="${i + 1}" r:id="rId${i + 1}"/>`).join("")}</sheets></workbook>` },
+    { name:"xl/_rels/workbook.xml.rels", content:`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${names.map((_, i) => `<Relationship Id="rId${i + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i + 1}.xml"/>`).join("")}</Relationships>` },
+    ...names.map((name, i) => ({ name:`xl/worksheets/sheet${i + 1}.xml`, content:sheetXml(tables[name]) })),
+  ];
+  downloadBlob("ptrs-core-tech-template-export.xlsx", createZip(entries));
+}
+
+async function loadRows(){
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      rows = normalizeRows(JSON.parse(stored));
+      if (rows.length) {
+        if ($("dataNote")) $("dataNote").textContent = `저장된 업로드 데이터 표시 중 · ${rows.length}개 기술`;
+        render();
+        return;
+      }
+    }
+  } catch (error) {
+    console.warn("Stored core tech data ignored", error);
+  }
+  try {
+    const response = await fetch(DATA_URL, { cache: "no-store" });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    rows = normalizeRows(await response.json());
+    if ($("dataNote")) $("dataNote").textContent = `외부 JSON 데이터 표시 중 · ${rows.length}개 기술`;
+  } catch (error) {
+    console.warn("Using embedded fallback core tech data", error);
+    rows = normalizeRows(FALLBACK_ROWS);
+    if ($("dataNote")) $("dataNote").textContent = "내장 데모 데이터 표시 중";
+  }
+  render();
+}
+
+const state = { core:"all", level1:"all", category:"all", group:"all", search:"" };
+const collapsed = { l1:new Set(), l2:new Set(), l3:new Set() };
+let collapsePreset = "open";
+let selectedNode = null;
+const $ = (id) => document.getElementById(id);
+
+function isCore(r){ return r.coreLevel === 3 || r.coreLevel === 4; }
+function editKey(parts){ return encodeURIComponent(JSON.stringify(parts)); }
+function readEditKey(key){ return JSON.parse(decodeURIComponent(key)); }
+function l3EditKey(r){ return editKey([r.l1, r.l2, r.l3]); }
+function l4EditKey(r){ return editKey([r.l1, r.l2, r.l3, r.l4]); }
+function findL3Rows(key){
+  const [l1, l2, l3] = readEditKey(key);
+  return rows.filter(r => r.l1 === l1 && r.l2 === l2 && r.l3 === l3);
+}
+function findL4Row(key){
+  const [l1, l2, l3, l4] = readEditKey(key);
+  return rows.find(r => r.l1 === l1 && r.l2 === l2 && r.l3 === l3 && r.l4 === l4);
+}
+function ownersOf(r){ return r.owners || [{group:r.group, team:r.team}]; }
+function ownerGroups(r){ return ownersOf(r).map(o => o.group).filter(Boolean); }
+function ownerText(r){ return ownersOf(r).map(o => `${o.group} ${o.team}`).join(" "); }
+function textTooltipAttr(text){
+  const value = clean(text);
+  return value ? `title="${escapeAttr(value)}" data-tooltip="${escapeAttr(value)}"` : "";
+}
+function ownerCompactHtml(r){
+  const groups = Array.from(new Set(ownerGroups(r)));
+  const label = groups.join(" · ");
+  const full = ownersOf(r).map(o => [o.group, o.team, o.owner].filter(Boolean).join(" · ")).filter(Boolean).join("\n");
+  return `<div class="owners"><span class="owner" ${textTooltipAttr(full || label)}>${label || "-"}</span></div>`;
+}
+function repText(r){
+  return (r.rep || "").replace(/^대표기술:\s*/, "").split(",")[0].trim();
+}
+function repChip(r){
+  const rep = repText(r);
+  return rep ? `<span class="rep-chip" ${textTooltipAttr(rep)}>${rep}</span>` : "";
+}
+function ownerEditText(r){
+  return ownersOf(r).map(o => [o.group, o.team, o.owner].filter(Boolean).join(" / ")).join("; ");
+}
+function parseOwnerEditText(text){
+  return clean(text).split(";").map(part => {
+    const pieces = part.split("/").map(v => v.trim());
+    return { group:pieces[0] || "", team:pieces[1] || "", owner:pieces[2] || "" };
+  }).filter(o => o.group || o.team || o.owner);
+}
+function ownerCellHtml(r){
+  return `<div class="owner-cell">${ownersOf(r).map(o => `<div class="owner-line"><b>${o.group}</b><span>${o.team}</span></div>`).join("")}</div>`;
+}
+function categoryClass(category){
+  if (category === "시장성장") return "market";
+  if (category === "기술성장") return "tech";
+  if (category === "미래성장") return "future";
+  return "";
+}
+function categoryColor(category){
+  if (category === "시장성장") return "#f59e0b";
+  if (category === "기술성장") return "#7c3aed";
+  if (category === "미래성장") return "#e11d48";
+  return "#64748b";
+}
+function barColor(label, fallback){
+  if (label === "시장성장" || label === "기술성장" || label === "미래성장") return categoryColor(label);
+  return fallback;
+}
+function isCollapsed(level, key){ return collapsed[level].has(key); }
+function collapseButton(level, key, label){
+  return `<button type="button" class="collapse-btn" data-collapse="${level}" data-key="${key}" aria-label="${label} 접기/펼치기">▾</button>`;
+}
+function setCollapsePresetActive(preset){
+  document.querySelectorAll("button[data-collapse-preset]").forEach(b => {
+    b.classList.toggle("active", b.dataset.collapsePreset === preset);
+  });
+}
+function clearCollapsed(){
+  collapsed.l1.clear();
+  collapsed.l2.clear();
+  collapsed.l3.clear();
+}
+function applyCollapsePreset(preset){
+  clearCollapsed();
+  if (preset === "l2") {
+    Array.from(new Set(rows.map(r => r.l1))).forEach(key => collapsed.l1.add(key));
+  }
+  if (preset === "l3") {
+    Array.from(new Set(rows.map(r => `${r.l1}|${r.l2}`))).forEach(key => collapsed.l2.add(key));
+  }
+  if (preset === "l4") {
+    Array.from(new Set(rows.map(r => `${r.l1}|${r.l2}|${r.l3}`))).forEach(key => collapsed.l3.add(key));
+  }
+  collapsePreset = preset;
+  setCollapsePresetActive(preset);
+}
+function coreMark(r, hasL3Core = false){
+  if (r.coreLevel === 4) return `<span class="mark star ${categoryClass(r.category)}" title="Level 4 Core · ${r.category}">★</span>`;
+  return "";
+}
+function l4Class(r, hasL3Core = false){
+  if (r.coreLevel === 4) return "core4";
+  if (hasL3Core || r.coreLevel === 3) return "included";
+  return "";
+}
+function coreLabel(r){
+  if (r.coreLevel === 4) return "L4 Core";
+  if (r.coreLevel === 3) return "L3 하위";
+  return "일반기술";
+}
+function groupBy(arr, keyFn){
+  return arr.reduce((acc, item) => {
+    const key = keyFn(item);
+    (acc[key] ||= []).push(item);
+    return acc;
+  }, {});
+}
+function matches(r){
+  if (state.level1 !== "all" && r.l1 !== state.level1) return false;
+  if (state.category !== "all" && r.category !== state.category) return false;
+  if (state.group !== "all" && !ownerGroups(r).includes(state.group)) return false;
+  if (state.core === "core" && !isCore(r)) return false;
+  if (state.core === "non" && r.coreLevel === 4) return false;
+  if (state.core === "l3" && r.coreLevel !== 3) return false;
+  if (state.core === "l4" && r.coreLevel !== 4) return false;
+  if (state.search) {
+    const hay = `${r.l1} ${r.l2} ${r.l3} ${r.l4} ${r.rep || ""} ${ownerText(r)} ${r.program}`.toLowerCase();
+    if (!hay.includes(state.search.toLowerCase())) return false;
+  }
+  return true;
+}
+function renderKpis(filtered){
+  const l1 = new Set(filtered.map(r=>r.l1)).size;
+  const l2 = new Set(filtered.map(r=>r.l2)).size;
+  const l3 = new Set(filtered.map(r=>`${r.l2}|${r.l3}`)).size;
+  const l4 = filtered.length;
+  const l3Core = filtered.filter(r=>r.coreLevel===3).length;
+  const l4Core = filtered.filter(r=>r.coreLevel===4).length;
+  const levelStats = [
+    ["Level 1", l1],
+    ["Level 2", l2],
+    ["Level 3", l3],
+    ["Level 4", l4]
+  ].map(([label,val]) => `<div class="kpi level"><span>${label}</span><b>${val}</b></div>`).join("");
+  const coreStats = [
+    ["전체 Core", l3Core + l4Core, "core-total"],
+    ["L3 Core", l3Core, "core-l3"],
+    ["L4 Core", l4Core, "core-l4"]
+  ].map(([label,val,type]) => `<div class="kpi ${type}"><span>${label}</span><b>${val}</b></div>`).join("");
+  $("kpis").innerHTML = `
+    <div class="kpi-group level">
+      <div class="kpi-group-title"><b>Level 구조</b><small>분류 체계</small></div>
+      <div class="kpi-row">${levelStats}</div>
+    </div>
+    <div class="kpi-group core">
+      <div class="kpi-group-title"><b>Core 지정</b><small>선정 기술</small></div>
+      <div class="kpi-row">${coreStats}</div>
+    </div>
+  `;
+}
+function renderGroups(){
+  const groups = ["all", ...Array.from(new Set(rows.flatMap(ownerGroups))).sort()];
+  $("groupButtons").innerHTML = groups.map(g =>
+    `<button data-filter="group" data-value="${g}" class="${state.group===g?"active":""}">${g==="all"?"전체":g}</button>`
+  ).join("");
+}
+function renderEditor(){
+  const panel = $("editPanel");
+  if (!panel) return;
+  if (!selectedNode) {
+    panel.className = "edit-panel empty";
+    panel.innerHTML = "Level 3 또는 Level 4 기술을 클릭하면 Core 지정과 정보를 바로 수정할 수 있습니다.";
+    return;
+  }
+  if (selectedNode.type === "l3") {
+    const l3Rows = findL3Rows(selectedNode.key);
+    if (!l3Rows.length) {
+      selectedNode = null;
+      renderEditor();
+      return;
+    }
+    const first = l3Rows[0];
+    const marker = l3Rows.find(r => r.coreLevel === 3);
+    panel.className = "edit-panel";
+    panel.innerHTML = `
+      <div class="edit-path">${first.l1} &gt; ${first.l2}</div>
+      <div class="edit-field">
+        <label>Level 3 명</label>
+        <input id="editL3Name" value="${escapeAttr(first.l3)}" />
+      </div>
+      <div class="edit-field">
+        <label>Core 지정</label>
+        <select id="editCoreScope">
+          <option value="none" ${marker ? "" : "selected"}>일반기술</option>
+          <option value="l3" ${marker ? "selected" : ""}>Level 3 Core</option>
+        </select>
+      </div>
+      <div class="edit-field">
+        <label>성장</label>
+        <select id="editCategory">
+          ${["", "시장성장", "기술성장", "미래성장"].map(v => `<option value="${v}" ${(marker?.category || "") === v ? "selected" : ""}>${v || "미지정"}</option>`).join("")}
+        </select>
+      </div>
+      <div class="edit-field">
+        <label>연구단계 구분</label>
+        <select id="editProgram">
+          ${["-", "비전기술", "차세대기술", "전략기술", "수익기술"].map(v => `<option value="${v}" ${(marker?.program || first.program || "-") === v ? "selected" : ""}>${v}</option>`).join("")}
+        </select>
+      </div>
+      <div class="edit-actions">
+        <button class="save" id="saveEdit">저장</button>
+        <button id="cancelEdit">취소</button>
+      </div>`;
+    return;
+  }
+  const r = findL4Row(selectedNode.key);
+  if (!r) {
+    selectedNode = null;
+    renderEditor();
+    return;
+  }
+  panel.className = "edit-panel";
+  panel.innerHTML = `
+    <div class="edit-path">${r.l1} &gt; ${r.l2} &gt; ${r.l3}</div>
+    <div class="edit-field">
+      <label>Level 4 명</label>
+      <input id="editL4Name" value="${escapeAttr(r.l4)}" />
+    </div>
+    <div class="edit-field">
+      <label>Core 지정</label>
+      <select id="editCoreScope">
+        <option value="none" ${r.coreLevel === 4 ? "" : "selected"}>일반기술</option>
+        <option value="l4" ${r.coreLevel === 4 ? "selected" : ""}>Level 4 Core</option>
+      </select>
+    </div>
+    <div class="edit-field">
+      <label>성장</label>
+      <select id="editCategory">
+        ${["", "시장성장", "기술성장", "미래성장"].map(v => `<option value="${v}" ${(r.category || "") === v ? "selected" : ""}>${v || "미지정"}</option>`).join("")}
+      </select>
+    </div>
+    <div class="edit-field">
+      <label>연구단계 구분</label>
+      <select id="editProgram">
+        ${["-", "비전기술", "차세대기술", "전략기술", "수익기술"].map(v => `<option value="${v}" ${(r.program || "-") === v ? "selected" : ""}>${v}</option>`).join("")}
+      </select>
+    </div>
+    <div class="edit-field">
+      <label>기술 스티커</label>
+      <input id="editRep" value="${escapeAttr(repText(r))}" />
+    </div>
+    <div class="edit-field">
+      <label>연구그룹 / 팀 / 담당자</label>
+      <textarea id="editOwners" placeholder="후판연구그룹 / 소재설계팀 / 홍길동; 재료해석그룹 / 평가팀">${escapeAttr(ownerEditText(r))}</textarea>
+    </div>
+    <div class="edit-actions">
+      <button class="save" id="saveEdit">저장</button>
+      <button id="cancelEdit">취소</button>
+    </div>`;
+}
+function saveCurrentEdit(){
+  if (!selectedNode) return;
+  if (selectedNode.type === "l3") {
+    const l3Rows = findL3Rows(selectedNode.key);
+    if (!l3Rows.length) return;
+    const newName = clean($("editL3Name").value) || l3Rows[0].l3;
+    const scope = $("editCoreScope").value;
+    const category = $("editCategory").value;
+    const program = $("editProgram").value || "-";
+    l3Rows.forEach(r => {
+      r.l3 = newName;
+      if (r.coreLevel === 3 || (scope === "l3" && r.coreLevel === 4)) r.coreLevel = 0;
+    });
+    if (scope === "l3") {
+      l3Rows[0].coreLevel = 3;
+      l3Rows[0].category = category;
+      l3Rows[0].program = program;
+    }
+    selectedNode.key = l3EditKey(l3Rows[0]);
+  } else {
+    const r = findL4Row(selectedNode.key);
+    if (!r) return;
+    const oldL3Rows = rows.filter(row => row.l1 === r.l1 && row.l2 === r.l2 && row.l3 === r.l3);
+    const scope = $("editCoreScope").value;
+    r.l4 = clean($("editL4Name").value) || r.l4;
+    r.category = $("editCategory").value;
+    r.program = $("editProgram").value || "-";
+    r.rep = clean($("editRep").value);
+    const owners = parseOwnerEditText($("editOwners").value);
+    if (owners.length) {
+      r.owners = owners;
+      r.group = owners[0].group;
+      r.team = owners[0].team;
+    }
+    if (scope === "l4") {
+      oldL3Rows.forEach(row => { if (row.coreLevel === 3) row.coreLevel = 0; });
+      r.coreLevel = 4;
+    } else if (r.coreLevel === 4 || r.coreLevel === 3) {
+      r.coreLevel = 0;
+    }
+    selectedNode.key = l4EditKey(r);
+  }
+  saveRowsToStorage("manual tree edit");
+  $("dataNote").textContent = "트리 편집 저장 완료 · JSON/XLSX 내보내기 가능";
+  render();
+}
+function renderMindGrid(filtered){
+  const byL1 = groupBy(filtered, r => r.l1);
+  const sections = Object.entries(byL1).map(([l1, l1Items]) => {
+    const byL2 = groupBy(l1Items, r => r.l2);
+    const l1Core = l1Items.filter(isCore).length;
+    const cards = Object.entries(byL2).map(([l2, items]) => {
+    const l2Key = `${l1}|${l2}`;
+    const byL3 = groupBy(items, r => r.l3);
+    const coreCount = items.filter(isCore).length;
+    const l3Html = Object.entries(byL3).map(([l3, l4s]) => {
+      const l3Key = `${l2Key}|${l3}`;
+      const l3Edit = editKey([l4s[0].l1, l4s[0].l2, l3]);
+      const l3Selected = selectedNode?.type === "l3" && selectedNode.key === l3Edit;
+      const hasL3Core = l4s.some(r=>r.coreLevel===3);
+      const coreL4 = l4s.filter(r=>r.coreLevel===4).length;
+      const l3Category = (l4s.find(r => r.coreLevel === 3) || l4s[0] || {}).category;
+      const l3Star = hasL3Core ? `<span class="core-star ${categoryClass(l3Category)}" title="Level 3 Core · ${l3Category}">★</span>` : "";
+      const hideL4ForL3Core = hasL3Core && (state.core === "core" || state.core === "l3");
+      const l4ListHtml = hideL4ForL3Core ? "" : `
+        <div class="l4-list">
+          ${l4s.map(r => {
+            const l4Edit = l4EditKey(r);
+            const l4Selected = selectedNode?.type === "l4" && selectedNode.key === l4Edit;
+            return `<div class="l4-item ${l4Class(r, hasL3Core)} ${l4Selected ? "selected" : ""}" data-edit-type="l4" data-edit-key="${l4Edit}">${coreMark(r, hasL3Core)}<div class="l4-copy"><div class="l4-title-line"><b ${textTooltipAttr(r.l4)}>${r.l4}</b>${repChip(r)}</div></div>${ownerCompactHtml(r)}</div>`;
+          }).join("")}
+        </div>`;
+      return `<div class="l3-row ${hasL3Core ? "core3" : ""} ${l3Selected ? "selected" : ""} ${isCollapsed("l3", l3Key) ? "collapsed" : ""}">
+        <div class="l3-main" data-edit-type="l3" data-edit-key="${l3Edit}">
+          <div class="node-head">
+            ${collapseButton("l3", l3Key, l3)}
+            <div class="l3-label">Level 3</div>
+            <div class="l3-title"><b ${textTooltipAttr(l3)}>${l3Star}${l3}</b></div>
+          </div>
+        </div>
+        ${l4ListHtml}
+      </div>`;
+    }).join("");
+    return `<article class="l2-card ${isCollapsed("l2", l2Key) ? "collapsed" : ""}">
+      <div class="l2-head">
+        <div class="l2-name">
+          ${collapseButton("l2", l2Key, l2)}
+          <div class="l2-label">Level 2</div>
+          <b ${textTooltipAttr(l2)}>${l2}</b>
+        </div>
+        <span class="root-pill ${l1}">Core ${coreCount}개</span>
+      </div>
+      <div class="l3-list">${l3Html}</div>
+    </article>`;
+    }).join("");
+    return `<section class="l1-section ${isCollapsed("l1", l1) ? "collapsed" : ""}">
+      <div class="l1-backbone ${l1}">
+        <div class="l1-title">
+          ${collapseButton("l1", l1, l1)}
+          <div class="l1-label">Level 1</div>
+          <b ${textTooltipAttr(l1)}>${l1}</b>
+        </div>
+        <div class="l1-metrics">
+          <span>Core ${l1Core}개</span>
+          <span>Level 4 ${l1Items.length}개</span>
+        </div>
+      </div>
+      <div class="l2-grid">${cards}</div>
+    </section>`;
+  }).join("");
+  $("mindGrid").innerHTML = sections || `<div class="empty">조건에 맞는 기술이 없습니다.</div>`;
+  $("status").textContent = `현재 ${filtered.length}개 기술 표시`;
+}
+function countBy(items, keyFn){
+  return items.reduce((acc, item) => {
+    const key = keyFn(item);
+    acc[key] = (acc[key] || 0) + 1;
+    return acc;
+  }, {});
+}
+function escapeAttr(text){
+  return String(text || "")
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+function techLabel(r){
+  if (r.coreLevel === 3) return `${r.l3} · Level 3 Core`;
+  if (r.coreLevel === 4) return `${r.l4} · Level 4 Core`;
+  return r.l4;
+}
+function uniqueTechLabels(items){
+  const map = new Map();
+  items.forEach(r => {
+    const key = r.coreLevel === 3 ? `L3|${r.l1}|${r.l2}|${r.l3}` : `L4|${r.l1}|${r.l2}|${r.l3}|${r.l4}`;
+    if (!map.has(key)) map.set(key, techLabel(r));
+  });
+  return Array.from(map.values());
+}
+function tooltipText(title, labels){
+  const list = (labels || []).filter(Boolean);
+  if (!list.length) return `${title}\n해당 기술 없음`;
+  const shown = list.slice(0, 9).map(label => `- ${label}`);
+  if (list.length > 9) shown.push(`- 외 ${list.length - 9}개`);
+  return `${title}\n${shown.join("\n")}`;
+}
+function tooltipAttr(title, labels){
+  return `data-tooltip="${escapeAttr(tooltipText(title, labels))}"`;
+}
+function tooltipSections(title, sections){
+  const lines = [title];
+  sections.forEach(section => {
+    const labels = (section.labels || []).filter(Boolean);
+    lines.push(`${section.label} ${labels.length}개`);
+    if (labels.length) {
+      labels.slice(0, 6).forEach(label => lines.push(`- ${label}`));
+      if (labels.length > 6) lines.push(`- 외 ${labels.length - 6}개`);
+    } else {
+      lines.push("- 해당 기술 없음");
+    }
+  });
+  return `data-tooltip="${escapeAttr(lines.join("\n"))}"`;
+}
+function barRows(counts, color, filterName, tooltipMap = {}){
+  const entries = Object.entries(counts).sort((a,b) => b[1] - a[1]);
+  const max = Math.max(1, ...entries.map(([,v]) => v));
+  return entries.map(([label,value]) => `
+    <div class="bar-row" ${filterName ? `data-chart-filter="${filterName}" data-value="${label}"` : ""} ${tooltipAttr(label, tooltipMap[label] || [])}>
+      <span>${label}</span>
+      <div class="bar-track"><i class="bar-fill" style="width:${Math.round(value / max * 100)}%;background:${barColor(label, color)}"></i></div>
+      <b>${value}</b>
+    </div>
+  `).join("") || `<div class="empty">표시할 데이터가 없습니다.</div>`;
+}
+function dualRows(totalCounts, coreCounts, filterName, titleText, tooltipMap = {}){
+  const entries = Object.entries(totalCounts).sort((a,b) => b[1] - a[1]);
+  const max = Math.max(1, ...entries.map(([,v]) => v));
+  return `
+    <div class="dual-legend"><span class="core"><i></i>Core</span><span class="total"><i></i>전체</span></div>
+    ${entries.map(([label,total]) => {
+      const core = coreCounts[label] || 0;
+      const tooltip = tooltipMap[label] || { core:[], total:[] };
+      return `<div class="dual-row" ${filterName ? `data-chart-filter="${filterName}" data-value="${label}"` : ""} ${tooltipSections(label, [
+        { label:"Core", labels:tooltip.core || [] },
+        { label:"전체", labels:tooltip.total || [] }
+      ])}>
+        <span>${label}</span>
+        <div class="dual-track">
+          <i class="dual-total" style="width:${Math.round(total / max * 100)}%"></i>
+          <i class="dual-core" style="width:${Math.round(core / max * 100)}%"></i>
+        </div>
+        <div class="dual-count"><b>${core}</b><span>${total}</span></div>
+      </div>`;
+    }).join("")}
+  ` || `<div class="empty">표시할 데이터가 없습니다.</div>`;
+}
+function heatLevel(value){
+  if (!value) return "";
+  if (value === 1) return "h1";
+  if (value === 2) return "h2";
+  if (value <= 4) return "h3";
+  return "h4";
+}
+function renderCharts(filtered){
+  const total = Math.max(1, filtered.length);
+  const l3 = filtered.filter(r => r.coreLevel === 3).length;
+  const l4 = filtered.filter(r => r.coreLevel === 4).length;
+  const non = filtered.filter(r => r.coreLevel === 0).length;
+  const l3Pct = Math.round(l3 / total * 100);
+  const l4Pct = Math.round((l3 + l4) / total * 100);
+  const coreFiltered = filtered.filter(isCore);
+  const coreTotal = Math.max(1, coreFiltered.length);
+  const l1CoreCounts = countBy(coreFiltered, r => r.l1);
+  const industryCore = l1CoreCounts["산업군"] || 0;
+  const productCore = l1CoreCounts["제품군"] || 0;
+  const processCore = l1CoreCounts["공정군"] || 0;
+  const industryPct = Math.round(industryCore / coreTotal * 100);
+  const productPct = Math.round((industryCore + productCore) / coreTotal * 100);
+  const categoryCounts = countBy(coreFiltered, r => r.category);
+  const programCounts = countBy(filtered, r => r.program || "-");
+  const programCoreCounts = countBy(filtered.filter(isCore), r => r.program || "-");
+  const categoryTooltips = {};
+  ["시장성장", "기술성장", "미래성장"].forEach(cat => {
+    categoryTooltips[cat] = uniqueTechLabels(coreFiltered.filter(r => r.category === cat));
+  });
+  const l1Tooltips = {};
+  ["산업군", "제품군", "공정군"].forEach(level => {
+    l1Tooltips[level] = uniqueTechLabels(coreFiltered.filter(r => r.l1 === level));
+  });
+  const programTooltips = {};
+  Object.keys(programCounts).forEach(program => {
+    const totalItems = filtered.filter(r => (r.program || "-") === program);
+    programTooltips[program] = {
+      core: uniqueTechLabels(totalItems.filter(isCore)),
+      total: uniqueTechLabels(totalItems)
+    };
+  });
+  const groupCounts = {};
+  const groupCoreCounts = {};
+  filtered.forEach(r => ownerGroups(r).forEach(g => groupCounts[g] = (groupCounts[g] || 0) + 1));
+  filtered.filter(isCore).forEach(r => ownerGroups(r).forEach(g => groupCoreCounts[g] = (groupCoreCounts[g] || 0) + 1));
+  const groupTooltips = {};
+  Object.keys(groupCounts).forEach(group => {
+    const totalItems = filtered.filter(r => ownerGroups(r).includes(group));
+    groupTooltips[group] = {
+      core: uniqueTechLabels(totalItems.filter(isCore)),
+      total: uniqueTechLabels(totalItems)
+    };
+  });
+  const levels = ["산업군", "제품군", "공정군"];
+  const cats = ["시장성장", "기술성장", "미래성장"];
+  const heat = levels.map(level => {
+    const values = cats.map(cat => coreFiltered.filter(r => r.l1 === level && r.category === cat).length);
+    return `<div class="heat label">${level}</div>${values.map((v,i) => {
+      const cellItems = uniqueTechLabels(coreFiltered.filter(r => r.l1 === level && r.category === cats[i]));
+      return `<div class="heat cat-${categoryClass(cats[i])} ${heatLevel(v)}" ${tooltipAttr(`${level} · ${cats[i]}`, cellItems)}>${v}</div>`;
+    }).join("")}`;
+  }).join("");
+  const l3Tooltip = uniqueTechLabels(filtered.filter(r => r.coreLevel === 3));
+  const l4Tooltip = uniqueTechLabels(filtered.filter(r => r.coreLevel === 4));
+  const nonTooltip = uniqueTechLabels(filtered.filter(r => r.coreLevel === 0));
+  $("charts").innerHTML = `
+    <div class="chart-card scope">
+      <div class="chart-title"><b>Core 범위 분포</b><span>★ 기준</span></div>
+      <div class="scope-chart">
+        <div class="donut" style="--l3p:${l3Pct}%;--l4p:${l4Pct}%"></div>
+        <div class="legend-list">
+          <div class="legend-stat" data-chart-filter="core" data-value="l3" ${tooltipAttr("Level 3 Core", l3Tooltip)}><i class="legend-dot"></i><span>Level 3 Core</span><b>${l3}</b></div>
+          <div class="legend-stat" data-chart-filter="core" data-value="l4" ${tooltipAttr("Level 4 Core", l4Tooltip)}><i class="legend-dot l4"></i><span>Level 4 Core</span><b>${l4}</b></div>
+          <div class="legend-stat" data-chart-filter="core" data-value="non" ${tooltipAttr("일반기술", nonTooltip)}><i class="legend-dot non"></i><span>일반기술</span><b>${non}</b></div>
+        </div>
+      </div>
+    </div>
+    <div class="chart-card l1-core">
+      <div class="chart-title"><b>Level 1 Core 분포</b><span>Core 기준</span></div>
+      <div class="scope-chart">
+        <div class="donut l1-donut" style="--industryp:${industryPct}%;--productp:${productPct}%"></div>
+        <div class="legend-list">
+          <div class="legend-stat" ${tooltipAttr("산업군 Core", l1Tooltips["산업군"])}><i class="legend-dot industry"></i><span>산업군</span><b>${industryCore}</b></div>
+          <div class="legend-stat" ${tooltipAttr("제품군 Core", l1Tooltips["제품군"])}><i class="legend-dot product"></i><span>제품군</span><b>${productCore}</b></div>
+          <div class="legend-stat" ${tooltipAttr("공정군 Core", l1Tooltips["공정군"])}><i class="legend-dot process"></i><span>공정군</span><b>${processCore}</b></div>
+        </div>
+      </div>
+    </div>
+    <div class="chart-card category">
+      <div class="chart-title"><b>성장 카테고리</b><span>Core 기준</span></div>
+      <div class="bar-chart">${barRows(categoryCounts, "#64748b", "category", categoryTooltips)}</div>
+    </div>
+    <div class="chart-card matrix">
+      <div class="chart-title"><b>Level 1 × 성장 카테고리</b></div>
+      <div class="heat-grid">
+        <div class="heat label">구분</div>${cats.map(c => `<div class="heat label col-label">${c}</div>`).join("")}
+        ${heat}
+      </div>
+    </div>
+    <div class="chart-card groups">
+      <div class="chart-title"><b>연구그룹 분포</b><span>Core / 전체</span></div>
+      <div class="dual-bars">${dualRows(groupCounts, groupCoreCounts, "group", "연구그룹", groupTooltips)}</div>
+    </div>
+    <div class="chart-card programs">
+      <div class="chart-title"><b>연구단계 구분</b><span>Core / 전체</span></div>
+      <div class="program-strip">
+        ${dualRows(programCounts, programCoreCounts, null, "", programTooltips)}
+      </div>
+    </div>
+  `;
+}
+function render(){
+  renderGroups();
+  const filtered = rows.filter(matches);
+  renderKpis(filtered);
+  renderMindGrid(filtered);
+  renderCharts(filtered);
+  renderEditor();
+}
+document.addEventListener("click", (e) => {
+  const presetBtn = e.target.closest("button[data-collapse-preset]");
+  if (presetBtn) {
+    applyCollapsePreset(presetBtn.dataset.collapsePreset);
+    render();
+    return;
+  }
+  const collapseBtn = e.target.closest("button[data-collapse]");
+  if (collapseBtn) {
+    const { collapse: level, key } = collapseBtn.dataset;
+    if (collapsed[level].has(key)) collapsed[level].delete(key);
+    else collapsed[level].add(key);
+    collapsePreset = "custom";
+    setCollapsePresetActive("custom");
+    render();
+    return;
+  }
+  const saveBtn = e.target.closest("#saveEdit");
+  if (saveBtn) {
+    saveCurrentEdit();
+    return;
+  }
+  const cancelBtn = e.target.closest("#cancelEdit");
+  if (cancelBtn) {
+    selectedNode = null;
+    render();
+    return;
+  }
+  const editTarget = e.target.closest("[data-edit-type]");
+  if (editTarget && !e.target.closest("button")) {
+    selectedNode = { type: editTarget.dataset.editType, key: editTarget.dataset.editKey };
+    render();
+    return;
+  }
+  const btn = e.target.closest("button[data-filter]");
+  const chartItem = e.target.closest("[data-chart-filter]");
+  if (!btn && !chartItem) return;
+  if (chartItem && !btn) {
+    const { chartFilter, value } = chartItem.dataset;
+    state[chartFilter] = value;
+    document.querySelectorAll(`button[data-filter="${chartFilter}"]`).forEach(b => b.classList.toggle("active", b.dataset.value === value));
+    render();
+    return;
+  }
+  const { filter, value } = btn.dataset;
+  state[filter] = value;
+  document.querySelectorAll(`button[data-filter="${filter}"]`).forEach(b => b.classList.toggle("active", b.dataset.value === value));
+  render();
+});
+const vizTooltip = document.createElement("div");
+vizTooltip.className = "viz-tooltip";
+document.body.appendChild(vizTooltip);
+function moveVizTooltip(e){
+  const pad = 14;
+  const rect = vizTooltip.getBoundingClientRect();
+  let x = e.clientX + pad;
+  let y = e.clientY + pad;
+  if (x + rect.width > window.innerWidth - 8) x = e.clientX - rect.width - pad;
+  if (y + rect.height > window.innerHeight - 8) y = e.clientY - rect.height - pad;
+  vizTooltip.style.left = `${Math.max(8, x)}px`;
+  vizTooltip.style.top = `${Math.max(8, y)}px`;
+}
+document.addEventListener("mouseover", (e) => {
+  const target = e.target.closest("[data-tooltip]");
+  if (!target) return;
+  vizTooltip.textContent = target.dataset.tooltip;
+  vizTooltip.classList.add("visible");
+  moveVizTooltip(e);
+});
+document.addEventListener("mousemove", (e) => {
+  if (!vizTooltip.classList.contains("visible")) return;
+  moveVizTooltip(e);
+});
+document.addEventListener("mouseout", (e) => {
+  if (!e.target.closest("[data-tooltip]")) return;
+  vizTooltip.classList.remove("visible");
+});
+$("search").addEventListener("input", e => { state.search = e.target.value; render(); });
+$("importJson").addEventListener("click", () => $("jsonFile").click());
+$("importXlsx").addEventListener("click", () => $("xlsxFile").click());
+$("exportJson").addEventListener("click", exportJson);
+$("exportXlsx").addEventListener("click", exportXlsx);
+$("jsonFile").addEventListener("change", async (e) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  try {
+    await importJsonFile(file);
+  } catch (error) {
+    $("dataNote").textContent = `JSON 가져오기 실패: ${error.message}`;
+  } finally {
+    e.target.value = "";
+  }
+});
+$("xlsxFile").addEventListener("change", async (e) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  try {
+    $("dataNote").textContent = "XLSX 읽는 중...";
+    await importXlsxFile(file);
+  } catch (error) {
+    console.error(error);
+    $("dataNote").textContent = `XLSX 가져오기 실패: ${error.message}`;
+  } finally {
+    e.target.value = "";
+  }
+});
+$("reset").addEventListener("click", () => {
+  Object.assign(state, { core:"all", level1:"all", category:"all", group:"all", search:"" });
+  clearCollapsed();
+  collapsePreset = "open";
+  setCollapsePresetActive("open");
+  $("search").value = "";
+  document.querySelectorAll("button[data-filter]").forEach(b => b.classList.toggle("active", b.dataset.value === "all"));
+  render();
+});
+loadRows();
+</script>
+</body>
+</html>

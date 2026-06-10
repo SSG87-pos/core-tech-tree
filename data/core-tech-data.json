@@ -1,0 +1,187 @@
+{
+  "schemaVersion": 1,
+  "source": "outputs/core-tech-tree-template/PTRS_Core_Tech_Data_Template.xlsx",
+  "updatedAt": "2026-06-10T17:52:19.379580+00:00",
+  "rows": [
+    {
+      "l1": "산업군",
+      "l2": "에너지 산업",
+      "l3": "수소/극저온 소재",
+      "l4": "LNG용 고Mn강 설계",
+      "coreLevel": 3,
+      "category": "미래성장",
+      "group": "후판연구그룹",
+      "team": "소재설계팀",
+      "research_stage": "전략기술",
+      "rep": "고Mn 합금설계",
+      "tags": "극저온, 수소, LNG",
+      "owners": [
+        {
+          "group": "후판연구그룹",
+          "team": "소재설계팀",
+          "owner": "홍길동"
+        },
+        {
+          "group": "재료해석그룹",
+          "team": "인성평가팀",
+          "owner": "김민수"
+        }
+      ]
+    },
+    {
+      "l1": "산업군",
+      "l2": "에너지 산업",
+      "l3": "수소/극저온 소재",
+      "l4": "극저온 인성 예측 모델",
+      "coreLevel": 0,
+      "category": "",
+      "group": "재료해석그룹",
+      "team": "모델링팀",
+      "research_stage": "전략기술",
+      "rep": "저온 파괴모델",
+      "tags": "시뮬레이션, 인성",
+      "owners": [
+        {
+          "group": "재료해석그룹",
+          "team": "모델링팀",
+          "owner": "이서연"
+        },
+        {
+          "group": "후판연구그룹",
+          "team": "시험평가팀",
+          "owner": "박준호"
+        }
+      ]
+    },
+    {
+      "l1": "산업군",
+      "l2": "에너지 산업",
+      "l3": "배터리 소재",
+      "l4": "열처리 생략형 Ni-X 도금",
+      "coreLevel": 4,
+      "category": "기술성장",
+      "group": "도금연구그룹",
+      "team": "표면처리팀",
+      "research_stage": "차세대기술",
+      "rep": "Ni-X 조성 제어",
+      "tags": "도금, 공정생략",
+      "owners": [
+        {
+          "group": "도금연구그룹",
+          "team": "표면처리팀",
+          "owner": "정다은"
+        },
+        {
+          "group": "공정설비그룹",
+          "team": "연속공정팀",
+          "owner": "최현우"
+        }
+      ]
+    },
+    {
+      "l1": "산업군",
+      "l2": "모빌리티 산업",
+      "l3": "자동차 경량화",
+      "l4": "1.5GPa급 냉연강",
+      "coreLevel": 3,
+      "category": "시장성장",
+      "group": "자동차소재연구그룹",
+      "team": "강재개발팀",
+      "research_stage": "전략기술",
+      "rep": "고강도-연성 밸런스",
+      "tags": "경량화, 강도",
+      "owners": [
+        {
+          "group": "자동차소재연구그룹",
+          "team": "강재개발팀",
+          "owner": "오지훈"
+        },
+        {
+          "group": "재료설계그룹",
+          "team": "합금설계팀",
+          "owner": "강하늘"
+        }
+      ]
+    },
+    {
+      "l1": "산업군",
+      "l2": "모빌리티 산업",
+      "l3": "전기차 구동소재",
+      "l4": "고효율 전기강판",
+      "coreLevel": 4,
+      "category": "시장성장",
+      "group": "전기강판연구그룹",
+      "team": "자성재료팀",
+      "research_stage": "수익기술",
+      "rep": "철손 저감",
+      "tags": "전기강판, 효율",
+      "owners": [
+        {
+          "group": "전기강판연구그룹",
+          "team": "자성재료팀",
+          "owner": "장서윤"
+        }
+      ]
+    },
+    {
+      "l1": "제품군",
+      "l2": "고급강 제품",
+      "l3": "고강도/고성형 강재",
+      "l4": "상변태 제어 모델",
+      "coreLevel": 0,
+      "category": "",
+      "group": "재료설계그룹",
+      "team": "상변태팀",
+      "research_stage": "비전기술",
+      "rep": "TRIP/TWIP 거동 예측",
+      "tags": "고성형, 모델",
+      "owners": [
+        {
+          "group": "재료설계그룹",
+          "team": "상변태팀",
+          "owner": "문지호"
+        }
+      ]
+    },
+    {
+      "l1": "제품군",
+      "l2": "고급강 제품",
+      "l3": "고내식 표면처리",
+      "l4": "Zn-Al-Mg 도금조직 제어",
+      "coreLevel": 0,
+      "category": "",
+      "group": "도금연구그룹",
+      "team": "표면기술팀",
+      "research_stage": "수익기술",
+      "rep": "삼원계 도금조직",
+      "tags": "도금, 내식",
+      "owners": [
+        {
+          "group": "도금연구그룹",
+          "team": "표면기술팀",
+          "owner": "배유진"
+        }
+      ]
+    },
+    {
+      "l1": "공정군",
+      "l2": "AI/DT 공정",
+      "l3": "공정 예측/자동제어",
+      "l4": "품질 이상탐지 모델",
+      "coreLevel": 4,
+      "category": "기술성장",
+      "group": "AI공정그룹",
+      "team": "데이터모델팀",
+      "research_stage": "차세대기술",
+      "rep": "AI 이상탐지",
+      "tags": "AI, 이상탐지",
+      "owners": [
+        {
+          "group": "AI공정그룹",
+          "team": "데이터모델팀",
+          "owner": "신예린"
+        }
+      ]
+    }
+  ]
+}
