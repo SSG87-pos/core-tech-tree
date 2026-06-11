@@ -1,100 +1,99 @@
 # Data Schema
 
-이 문서는 `PTRS ↔ Core Tech` HTML이 기대하는 데이터 구조와 엑셀 입력 규칙을 정리합니다.
+이 문서는 `Core Technology 2026` HTML이 기대하는 데이터 구조와 한 시트 XLSX 입력 규칙을 정리합니다.
 
-## HTML JSON 구조
-
-HTML은 아래 JSON 구조를 읽습니다.
+## JSON 구조
 
 ```json
 {
-  "schemaVersion": 1,
+  "schemaVersion": 3,
   "source": "input file name",
   "updatedAt": "2026-06-11T00:00:00.000Z",
+  "orgMaster": {
+    "groups": ["수소환원제철", "차세대철강"],
+    "teams": ["[C]수소환원", "[8대]고Mn강"]
+  },
   "rows": [
     {
-      "l1": "산업군",
-      "l2": "에너지 산업",
-      "l3": "수소/극저온 소재",
-      "l4": "LNG용 고Mn강 설계",
-      "coreLevel": 3,
-      "category": "미래성장",
-      "group": "후판연구그룹",
-      "team": "에너지강재팀",
-      "research_stage": "전략기술",
-      "rep": "고Mn 합금설계",
-      "tags": "극저온, 합금설계",
-      "owners": [
-        { "group": "후판연구그룹", "team": "에너지강재팀", "owner": "홍길동" }
+      "id": "P-001",
+      "l1": "제품",
+      "l2": "후판",
+      "l3": "LNG용 고Mn강",
+      "sticker": "고Mn 합금설계",
+      "summary": "극저온 후판의 합금 설계와 인성 확보",
+      "isCore": true,
+      "growthStage": "신시장/미래",
+      "researchStage": "전략기술",
+      "tags": "극저온, LNG, 후판",
+      "orgs": [
+        { "type": "연구그룹", "name": "후판연구그룹", "owner": "홍길동", "role": "주관" }
       ]
     }
   ]
 }
 ```
 
-## 필드 설명
+## Level 정의
 
-| JSON 필드 | 의미 | 입력 원천 |
-|---|---|---|
-| `l1` | Level 1 구분 | `01_Tech_Master.level1` |
-| `l2` | Level 2 기술군 | `01_Tech_Master.level2` |
-| `l3` | Level 3 기술군 | `01_Tech_Master.level3` |
-| `l4` | Level 4 세부기술 | `01_Tech_Master.level4` |
-| `coreLevel` | `0`, `3`, `4` | `02_Core_Definition.core_level` |
-| `category` | 시장성장/기술성장/미래성장 | Core 행의 `growth_category` |
-| `group` | 대표 연구그룹 | 첫 번째 owner |
-| `team` | 대표 팀 | 첫 번째 owner |
-| `research_stage` | 연구단계 구분: 비전/차세대/전략/수익기술 | Core 우선, 없으면 Master |
-| `rep` | Level 4 옆 스티커 | `대표기술명` |
-| `tags` | Core 태그 또는 기술 태그 | `core_tags` 또는 `핵심기술_태그` |
-| `owners` | 복수 연구그룹/팀/담당자 | `03_Owner_Link` 또는 Master owner 컬럼 |
+Level 4는 더 이상 별도 계층으로 쓰지 않습니다. 기존 Level 4에 가까운 세부기술도 새 구조에서는 `level3` 기술 1건으로 입력합니다.
 
-## Excel 입력 규칙
+| Level | 의미 |
+|---|---|
+| Level 1 | 제품 / 공정 / 솔루션 / AX |
+| Level 2 | Level 1별 기술군 |
+| Level 3 | 실제 기술 단위. 약 100개 입력 예상 |
 
-### 01_Tech_Master
+## Level 2 표준 목록
 
-Level 4 기술 1개를 1행으로 입력합니다. 약 300개 Level 4 기술을 넣어도 화면에서 필터와 접기로 볼 수 있도록 설계했습니다.
+| Level 1 | Level 2 |
+|---|---|
+| 제품 | 열연, 후판, 선재, 냉연, 도금, 전기강판, STS, 자동차 |
+| 공정 | 제선, 제강, 열연, 냉연, 도금, 전기강판, STS, 탄소중립, DX, 유틸리티, 환경에너지 |
+| 솔루션 | 조선에너지, 가전, 산업기계, 건설, 방산, 제철소, 자동차 |
+| AX | A1-Steel Brain, A2 |
 
-필수 컬럼:
+## XLSX 입력 규칙
 
-- `tech_id`
-- `level1`
-- `level2`
-- `level3`
-- `level4`
-- `대표기술명`
-- `research_group`
-- `team`
-- `research_stage`
-- `active_yn`
+템플릿은 `01_Core_Tech_Data` 시트 1개만 사용합니다.
 
-담당 조직이 2~3개 정도면 `research_group_2`, `team_2`, `owner_2` 형식으로 바로 넣을 수 있습니다. 그 이상이거나 관리가 필요하면 `03_Owner_Link`를 사용합니다.
+필수 또는 권장 컬럼:
 
-### 02_Core_Definition
+| 컬럼 | 설명 |
+|---|---|
+| `tech_id` | 기술 고유 ID |
+| `level1` | 제품 / 공정 / 솔루션 / AX |
+| `level2` | Level 2 표준 목록 중 하나 |
+| `level3` | 기술명 |
+| `기술요약` | 상세 팝오버에 표시할 한 줄 설명 |
+| `핵심기술_태그` | 검색/분류용 기술 태그. 쉼표로 여러 개 입력 |
+| `is_core` | TRUE/FALSE |
+| `growth_stage` | 기술진화 / 기술성숙 / 신시장/미래 / 빈칸 |
+| `research_stage` | 비전기술 / 차세대기술 / 전략기술 / 수익기술 / 빈칸 |
+| `sort_order` | 표시 순서 |
+| `active_yn` | Y/N. N이면 변환기에서 제외 |
+| `org_1_type` ~ `org_5_type` | 연구그룹 / 팀 / TF팀 / PJ팀 등 |
+| `org_1_name` ~ `org_5_name` | 수행 조직명 |
+| `org_1_owner` ~ `org_5_owner` | 담당자 |
+| `org_1_role` ~ `org_5_role` | 주관 / 협업 / 담당 등 |
 
-Core로 선정한 기술만 입력합니다.
+조직명은 기본 목록에 없어도 입력할 수 있습니다. HTML은 업로드된 조직명을 보존하고 필터에도 표시합니다.
+자주 사용하는 신규 조직은 HTML의 `조직 목록 편집`에서 연구그룹 또는 Team 목록에 추가합니다.
+JSON 내보내기는 `orgMaster`를 함께 저장하므로 다른 사람이 불러와도 같은 기준 목록을 유지할 수 있습니다.
 
-- Level 3 Core: `core_level = Level 3 Core`, `level4`는 비워둡니다.
-- Level 4 Core: `core_level = Level 4 Core`, `level4`까지 정확히 입력합니다.
-- 같은 Level 3 아래에서 Level 3 Core와 Level 4 Core를 동시에 지정하지 않습니다.
-- `growth_category`는 Core 기술에만 입력합니다.
-- `research_stage`는 연구단계 구분이며 비전기술 / 차세대기술 / 전략기술 / 수익기술 / `-` 중 하나를 입력합니다.
+## 통계 처리
 
-HTML에서는 Level 3 Core를 표시하기 위해 해당 Level 3의 첫 번째 Level 4 행에 `coreLevel: 3` 마커를 둡니다. 이 마커는 Level 4가 Core라는 뜻이 아니라, 부모 Level 3 전체가 Core라는 뜻입니다.
+- Core 총계는 `is_core = TRUE`인 기술 수입니다.
+- 성장 단계 그래프는 Core 기술만 기준으로 계산합니다.
+- 성장 단계와 연구단계가 비어 있으면 `미지정`으로 처리합니다.
+- 조직별 분포는 `orgMaster.groups`, `orgMaster.teams`, `org_*_type` 기준으로 연구그룹과 Team을 나누어 계산합니다.
+- 담당자 수는 `조직명 + 담당자` 조합의 고유 개수로 계산합니다.
+- 하나의 기술에 여러 조직이 연결되면 각 조직의 기술 분포에 모두 반영됩니다.
 
-기존 파일과의 호환을 위해 HTML은 과거 컬럼명 `related_program`과 JSON 필드 `program`도 읽을 수 있지만, 새 템플릿과 내보내기 파일은 `research_stage`를 사용합니다.
+## 호환성
 
-### 03_Owner_Link
+HTML은 이전 JSON 필드 일부도 읽을 수 있습니다.
 
-복수 연구그룹/팀/담당자를 표현할 때 사용합니다.
-
-- `tech_id`로 `01_Tech_Master`와 연결합니다.
-- `is_primary = Y`인 행을 대표 조직으로 봅니다.
-- HTML에서는 여러 연구그룹을 하나의 pill 안에 `그룹A · 그룹B`처럼 표시합니다.
-
-## 화면 동작 규칙
-
-- `Core만` 필터에서 Level 3 Core는 부모 Level 3만 보여주고 하위 Level 4 전체는 펼치지 않습니다.
-- `일반기술만` 필터에서 Level 3 Core의 첫 하위 Level 4는 구조 유지를 위해 표시됩니다. 이는 Level 4 Core가 아니라 Level 3 Core의 구성기술입니다.
-- `L4 Core` 필터는 `coreLevel = 4`인 행만 보여줍니다.
-- 성장 카테고리 그래프는 Core 기술만 기준으로 계산합니다.
+- `coreLevel > 0` → `isCore = true`
+- `category` → `growthStage`
+- `program` 또는 `research_stage` → `researchStage`
+- `owners` → `orgs`

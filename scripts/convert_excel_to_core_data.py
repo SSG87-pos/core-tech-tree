@@ -1,12 +1,9 @@
 #!/usr/bin/env python3
-"""Convert PTRS Core Tech Excel template into HTML-ready JSON data.
+"""Convert the one-sheet PTRS Core Tech Excel template into HTML-ready JSON.
 
 Usage:
   python3 scripts/convert_excel_to_core_data.py \
     outputs/core-tech-tree-template/PTRS_Core_Tech_Data_Template.xlsx
-
-The default output is:
-  data/core-tech-data.json
 """
 
 from __future__ import annotations
@@ -21,6 +18,42 @@ from openpyxl import load_workbook
 
 
 DEFAULT_OUTPUT = Path("data/core-tech-data.json")
+DEFAULT_RESEARCH_GROUPS = [
+    "수소환원제철",
+    "차세대철강",
+    "제선",
+    "제강",
+    "엔지니어링",
+    "로봇AI",
+    "열연선재후판",
+    "냉연도금",
+    "STS연구",
+    "자동차소재",
+    "표면",
+    "자동차소재솔루션",
+    "강재솔루션",
+    "강건재솔루션",
+]
+DEFAULT_TEAMS = [
+    "[C]용선온도하락방지",
+    "[C]Inocast",
+    "[C]수소환원",
+    "[C]ESF연구",
+    "[C]미래연원료",
+    "[8대]에너지용후판",
+    "[8대]고Mn강",
+    "[C]K방산제품",
+    "[8대]신재생에너지PosMAC",
+    "[C]신도금",
+    "[8대]HyperNO",
+    "[8대]전력용전기강판",
+    "[C]원자력재료",
+    "[8대]차세대성장시장용STS",
+    "[8대]GigaSteel",
+    "[8대]전기로고급강",
+    "[C]강구조아파트",
+    "[C]제품AX",
+]
 
 
 def clean(value: Any) -> str:
@@ -29,11 +62,13 @@ def clean(value: Any) -> str:
     return str(value).strip()
 
 
-def split_multi(value: Any) -> list[str]:
+def as_bool(value: Any) -> bool:
+    return clean(value).lower() in {"true", "y", "yes", "1", "core"}
+
+
+def norm_optional(value: Any) -> str:
     text = clean(value)
-    if not text:
-        return []
-    return [part.strip() for part in text.replace(";", ",").split(",") if part.strip()]
+    return text if text and text != "-" else "미지정"
 
 
 def table_rows(sheet) -> list[dict[str, Any]]:
@@ -46,134 +81,55 @@ def table_rows(sheet) -> list[dict[str, Any]]:
     return rows
 
 
-def first_non_empty(*values: Any) -> str:
-    for value in values:
-        text = clean(value)
-        if text:
-            return text
-    return ""
-
-
-def owner_rows_from_master(row: dict[str, Any]) -> list[dict[str, str]]:
-    owners: list[dict[str, str]] = []
-    for suffix in ["", "_2", "_3"]:
-        group = clean(row.get(f"research_group{suffix}"))
-        team = clean(row.get(f"team{suffix}"))
-        owner = clean(row.get(f"owner{suffix}"))
-        if group or team or owner:
-            owners.append({"group": group, "team": team, "owner": owner})
-    if not owners:
-        owners.append({"group": "", "team": "", "owner": ""})
-    return owners
-
-
-def build_owner_index(owner_rows: list[dict[str, Any]]) -> dict[str, list[dict[str, str]]]:
-    index: dict[str, list[dict[str, str]]] = {}
-    for row in owner_rows:
-        tech_id = clean(row.get("tech_id"))
-        if not tech_id:
-            continue
-        index.setdefault(tech_id, []).append(
-            {
-                "group": clean(row.get("research_group")),
-                "team": clean(row.get("team")),
-                "owner": clean(row.get("owner")),
-                "role": clean(row.get("role")),
-                "isPrimary": clean(row.get("is_primary")),
-            }
-        )
-    return index
-
-
-def core_indexes(core_rows: list[dict[str, Any]]):
-    level3: dict[tuple[str, str, str], dict[str, Any]] = {}
-    level4: dict[tuple[str, str, str, str], dict[str, Any]] = {}
-    for row in core_rows:
-        core_level = clean(row.get("core_level"))
-        key3 = (clean(row.get("level1")), clean(row.get("level2")), clean(row.get("level3")))
-        key4 = (*key3, clean(row.get("level4")))
-        if core_level == "Level 3 Core":
-            level3[key3] = row
-        elif core_level == "Level 4 Core":
-            level4[key4] = row
-    return level3, level4
+def orgs_from_row(row: dict[str, Any]) -> list[dict[str, str]]:
+    orgs: list[dict[str, str]] = []
+    for idx in range(1, 6):
+        org = {
+            "type": clean(row.get(f"org_{idx}_type")) or "조직",
+            "name": clean(row.get(f"org_{idx}_name")),
+            "owner": clean(row.get(f"org_{idx}_owner")),
+            "role": clean(row.get(f"org_{idx}_role")),
+        }
+        if org["name"] or org["owner"]:
+            orgs.append(org)
+    return orgs
 
 
 def convert(workbook_path: Path, output_path: Path) -> dict[str, Any]:
     wb = load_workbook(workbook_path, data_only=True)
-    tech_rows = table_rows(wb["01_Tech_Master"])
-    core_rows = table_rows(wb["02_Core_Definition"])
-    owner_rows = table_rows(wb["03_Owner_Link"]) if "03_Owner_Link" in wb.sheetnames else []
-
-    owner_index = build_owner_index(owner_rows)
-    l3_cores, l4_cores = core_indexes(core_rows)
-    l3_core_used: set[tuple[str, str, str]] = set()
+    sheet = wb["01_Core_Tech_Data"] if "01_Core_Tech_Data" in wb.sheetnames else wb[wb.sheetnames[0]]
+    rows = table_rows(sheet)
 
     output_rows: list[dict[str, Any]] = []
-    for row in tech_rows:
+    for idx, row in enumerate(rows, start=1):
         if clean(row.get("active_yn")).upper() == "N":
             continue
         l1 = clean(row.get("level1"))
         l2 = clean(row.get("level2"))
         l3 = clean(row.get("level3"))
-        l4 = clean(row.get("level4"))
-        if not all([l1, l2, l3, l4]):
+        if not all([l1, l2, l3]):
             continue
-
-        key3 = (l1, l2, l3)
-        key4 = (l1, l2, l3, l4)
-        core_level = 0
-        core = None
-        if key3 in l3_cores and key3 not in l3_core_used:
-            core_level = 3
-            core = l3_cores[key3]
-            l3_core_used.add(key3)
-        elif key4 in l4_cores:
-            core_level = 4
-            core = l4_cores[key4]
-
-        owners = owner_index.get(clean(row.get("tech_id"))) or owner_rows_from_master(row)
-        primary = owners[0] if owners else {"group": "", "team": "", "owner": ""}
-        category = clean(core.get("growth_category")) if core else ""
-        program = first_non_empty(
-            core.get("research_stage") if core else "",
-            core.get("related_program") if core else "",
-            row.get("research_stage"),
-            row.get("related_program"),
-            "-",
-        )
-        rep = clean(row.get("대표기술명"))
-        tags = first_non_empty(core.get("core_tags") if core else "", row.get("핵심기술_태그"))
-
         output_rows.append(
             {
+                "id": clean(row.get("tech_id")) or f"T-{idx:04d}",
                 "l1": l1,
                 "l2": l2,
                 "l3": l3,
-                "l4": l4,
-                "coreLevel": core_level,
-                "category": category,
-                "group": primary.get("group", ""),
-                "team": primary.get("team", ""),
-                "research_stage": program or "-",
-                "rep": rep,
-                "tags": tags,
-                "owners": [
-                    {
-                        "group": clean(owner.get("group")),
-                        "team": clean(owner.get("team")),
-                        "owner": clean(owner.get("owner")),
-                    }
-                    for owner in owners
-                    if clean(owner.get("group")) or clean(owner.get("team")) or clean(owner.get("owner"))
-                ],
+                "sticker": "",
+                "summary": clean(row.get("기술요약") or row.get("summary")),
+                "tags": clean(row.get("핵심기술_태그") or row.get("기술스티커") or row.get("대표기술명")),
+                "isCore": as_bool(row.get("is_core")),
+                "growthStage": norm_optional(row.get("growth_stage")),
+                "researchStage": norm_optional(row.get("research_stage")),
+                "orgs": orgs_from_row(row),
             }
         )
 
     payload = {
-        "schemaVersion": 1,
+        "schemaVersion": 3,
         "source": str(workbook_path),
         "updatedAt": datetime.now(timezone.utc).isoformat(),
+        "orgMaster": {"groups": DEFAULT_RESEARCH_GROUPS, "teams": DEFAULT_TEAMS},
         "rows": output_rows,
     }
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -184,12 +140,7 @@ def convert(workbook_path: Path, output_path: Path) -> dict[str, Any]:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Convert Core Tech Excel template to HTML JSON.")
     parser.add_argument("workbook", type=Path, help="Path to PTRS Core Tech Excel workbook")
-    parser.add_argument(
-        "--output",
-        type=Path,
-        default=DEFAULT_OUTPUT,
-        help=f"Output JSON path. Default: {DEFAULT_OUTPUT}",
-    )
+    parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT, help=f"Output JSON path. Default: {DEFAULT_OUTPUT}")
     args = parser.parse_args()
     payload = convert(args.workbook, args.output)
     print(f"saved: {args.output}")

@@ -1,187 +1,551 @@
 {
-  "schemaVersion": 1,
-  "source": "outputs/core-tech-tree-template/PTRS_Core_Tech_Data_Template.xlsx",
-  "updatedAt": "2026-06-10T17:52:19.379580+00:00",
+  "schemaVersion": 3,
+  "source": "PTRS_Core_Tech_Map.html fallback",
+  "updatedAt": "2026-06-11T12:18:12.855Z",
+  "orgMaster": {
+    "groups": [
+      "수소환원제철",
+      "차세대철강",
+      "제선",
+      "제강",
+      "엔지니어링",
+      "로봇AI",
+      "열연선재후판",
+      "냉연도금",
+      "STS연구",
+      "자동차소재",
+      "표면",
+      "자동차소재솔루션",
+      "강재솔루션",
+      "강건재솔루션"
+    ],
+    "teams": [
+      "[C]용선온도하락방지",
+      "[C]Inocast",
+      "[C]수소환원",
+      "[C]ESF연구",
+      "[C]미래연원료",
+      "[8대]에너지용후판",
+      "[8대]고Mn강",
+      "[C]K방산제품",
+      "[8대]신재생에너지PosMAC",
+      "[C]신도금",
+      "[8대]HyperNO",
+      "[8대]전력용전기강판",
+      "[C]원자력재료",
+      "[8대]차세대성장시장용STS",
+      "[8대]GigaSteel",
+      "[8대]전기로고급강",
+      "[C]강구조아파트",
+      "[C]제품AX"
+    ]
+  },
   "rows": [
     {
-      "l1": "산업군",
-      "l2": "에너지 산업",
-      "l3": "수소/극저온 소재",
-      "l4": "LNG용 고Mn강 설계",
-      "coreLevel": 3,
-      "category": "미래성장",
-      "group": "후판연구그룹",
-      "team": "소재설계팀",
-      "research_stage": "전략기술",
-      "rep": "고Mn 합금설계",
-      "tags": "극저온, 수소, LNG",
-      "owners": [
+      "id": "P-001",
+      "l1": "제품",
+      "l2": "후판",
+      "l3": "LNG용 고Mn강",
+      "sticker": "고Mn 합금설계",
+      "summary": "극저온 후판의 합금 설계와 인성 확보",
+      "isCore": true,
+      "growthStage": "신시장/미래",
+      "researchStage": "전략기술",
+      "orgs": [
         {
-          "group": "후판연구그룹",
-          "team": "소재설계팀",
-          "owner": "홍길동"
+          "type": "연구그룹",
+          "name": "후판연구그룹",
+          "owner": "홍길동",
+          "role": "주관"
         },
         {
-          "group": "재료해석그룹",
-          "team": "인성평가팀",
-          "owner": "김민수"
+          "type": "연구그룹",
+          "name": "재료해석그룹",
+          "owner": "김민수",
+          "role": "협업"
         }
-      ]
+      ],
+      "tags": ""
     },
     {
-      "l1": "산업군",
-      "l2": "에너지 산업",
-      "l3": "수소/극저온 소재",
-      "l4": "극저온 인성 예측 모델",
-      "coreLevel": 0,
-      "category": "",
-      "group": "재료해석그룹",
-      "team": "모델링팀",
-      "research_stage": "전략기술",
-      "rep": "저온 파괴모델",
-      "tags": "시뮬레이션, 인성",
-      "owners": [
+      "id": "P-002",
+      "l1": "제품",
+      "l2": "후판",
+      "l3": "해양플랜트 용접성",
+      "sticker": "대입열 용접성",
+      "summary": "저온 CTOD와 용접부 품질 안정화",
+      "isCore": true,
+      "growthStage": "기술성숙",
+      "researchStage": "수익기술",
+      "orgs": [
         {
-          "group": "재료해석그룹",
-          "team": "모델링팀",
-          "owner": "이서연"
+          "type": "연구그룹",
+          "name": "후판연구그룹",
+          "owner": "박준호",
+          "role": "담당"
+        }
+      ],
+      "tags": ""
+    },
+    {
+      "id": "P-003",
+      "l1": "제품",
+      "l2": "냉연",
+      "l3": "1.5GPa급 냉연강",
+      "sticker": "강도-연성 밸런스",
+      "summary": "차체 경량화를 위한 냉연 고강도강",
+      "isCore": true,
+      "growthStage": "기술성숙",
+      "researchStage": "전략기술",
+      "orgs": [
+        {
+          "type": "연구그룹",
+          "name": "자동차소재연구그룹",
+          "owner": "오지훈",
+          "role": "담당"
         },
         {
-          "group": "후판연구그룹",
-          "team": "시험평가팀",
-          "owner": "박준호"
+          "type": "팀",
+          "name": "재료설계TF",
+          "owner": "강하늘",
+          "role": "담당"
         }
-      ]
+      ],
+      "tags": ""
     },
     {
-      "l1": "산업군",
-      "l2": "에너지 산업",
-      "l3": "배터리 소재",
-      "l4": "열처리 생략형 Ni-X 도금",
-      "coreLevel": 4,
-      "category": "기술성장",
-      "group": "도금연구그룹",
-      "team": "표면처리팀",
-      "research_stage": "차세대기술",
-      "rep": "Ni-X 조성 제어",
-      "tags": "도금, 공정생략",
-      "owners": [
+      "id": "P-004",
+      "l1": "제품",
+      "l2": "도금",
+      "l3": "Ni-X 열처리 생략 도금",
+      "sticker": "Ni-X 조성 제어",
+      "summary": "공정 생략형 도금 조성과 표면 안정화",
+      "isCore": true,
+      "growthStage": "기술진화",
+      "researchStage": "차세대기술",
+      "orgs": [
         {
-          "group": "도금연구그룹",
-          "team": "표면처리팀",
-          "owner": "정다은"
+          "type": "연구그룹",
+          "name": "도금연구그룹",
+          "owner": "정다은",
+          "role": "담당"
         },
         {
-          "group": "공정설비그룹",
-          "team": "연속공정팀",
-          "owner": "최현우"
+          "type": "팀",
+          "name": "공정설비팀",
+          "owner": "최현우",
+          "role": "담당"
         }
-      ]
+      ],
+      "tags": ""
     },
     {
-      "l1": "산업군",
-      "l2": "모빌리티 산업",
-      "l3": "자동차 경량화",
-      "l4": "1.5GPa급 냉연강",
-      "coreLevel": 3,
-      "category": "시장성장",
-      "group": "자동차소재연구그룹",
-      "team": "강재개발팀",
-      "research_stage": "전략기술",
-      "rep": "고강도-연성 밸런스",
-      "tags": "경량화, 강도",
-      "owners": [
+      "id": "P-005",
+      "l1": "제품",
+      "l2": "전기강판",
+      "l3": "고효율 전기강판",
+      "sticker": "철손 저감",
+      "summary": "자구 제어 기반 모터 효율 개선",
+      "isCore": true,
+      "growthStage": "기술성숙",
+      "researchStage": "수익기술",
+      "orgs": [
         {
-          "group": "자동차소재연구그룹",
-          "team": "강재개발팀",
-          "owner": "오지훈"
+          "type": "연구그룹",
+          "name": "전기강판연구그룹",
+          "owner": "장서윤",
+          "role": "담당"
+        }
+      ],
+      "tags": ""
+    },
+    {
+      "id": "P-006",
+      "l1": "제품",
+      "l2": "STS",
+      "l3": "내열 STS 합금",
+      "sticker": "Cr-Ni 최적화",
+      "summary": "고온 산화 저항성과 성형 안정성",
+      "isCore": false,
+      "growthStage": "",
+      "researchStage": "전략기술",
+      "orgs": [
+        {
+          "type": "연구그룹",
+          "name": "STS연구그룹",
+          "owner": "배유진",
+          "role": "담당"
+        }
+      ],
+      "tags": ""
+    },
+    {
+      "id": "P-007",
+      "l1": "제품",
+      "l2": "선재",
+      "l3": "고강도 선재 피로수명",
+      "sticker": "피로 균열 억제",
+      "summary": "고하중 부품용 선재 내구성 평가",
+      "isCore": false,
+      "growthStage": "",
+      "researchStage": "미지정",
+      "orgs": [
+        {
+          "type": "팀",
+          "name": "선재품질PJ",
+          "owner": "문지호",
+          "role": "담당"
+        }
+      ],
+      "tags": ""
+    },
+    {
+      "id": "P-008",
+      "l1": "제품",
+      "l2": "자동차",
+      "l3": "성형 균열 예측",
+      "sticker": "FLD/CAE 예측",
+      "summary": "고객 부품 성형성 예측과 평가",
+      "isCore": false,
+      "growthStage": "",
+      "researchStage": "전략기술",
+      "orgs": [
+        {
+          "type": "연구그룹",
+          "name": "이용기술그룹",
+          "owner": "이서연",
+          "role": "담당"
         },
         {
-          "group": "재료설계그룹",
-          "team": "합금설계팀",
-          "owner": "강하늘"
+          "type": "팀",
+          "name": "AI성형TF",
+          "owner": "신예린",
+          "role": "담당"
         }
-      ]
+      ],
+      "tags": ""
     },
     {
-      "l1": "산업군",
-      "l2": "모빌리티 산업",
-      "l3": "전기차 구동소재",
-      "l4": "고효율 전기강판",
-      "coreLevel": 4,
-      "category": "시장성장",
-      "group": "전기강판연구그룹",
-      "team": "자성재료팀",
-      "research_stage": "수익기술",
-      "rep": "철손 저감",
-      "tags": "전기강판, 효율",
-      "owners": [
+      "id": "PR-001",
+      "l1": "공정",
+      "l2": "탄소중립",
+      "l3": "수소환원 DRI 품질 안정화",
+      "sticker": "DRI 환원도 제어",
+      "summary": "잔류원소와 환원도 기반 품질 안정화",
+      "isCore": true,
+      "growthStage": "신시장/미래",
+      "researchStage": "비전기술",
+      "orgs": [
         {
-          "group": "전기강판연구그룹",
-          "team": "자성재료팀",
-          "owner": "장서윤"
+          "type": "연구그룹",
+          "name": "저탄소공정그룹",
+          "owner": "유현",
+          "role": "담당"
+        },
+        {
+          "type": "연구그룹",
+          "name": "원료공정그룹",
+          "owner": "서윤",
+          "role": "담당"
         }
-      ]
+      ],
+      "tags": ""
     },
     {
-      "l1": "제품군",
-      "l2": "고급강 제품",
-      "l3": "고강도/고성형 강재",
-      "l4": "상변태 제어 모델",
-      "coreLevel": 0,
-      "category": "",
-      "group": "재료설계그룹",
-      "team": "상변태팀",
-      "research_stage": "비전기술",
-      "rep": "TRIP/TWIP 거동 예측",
-      "tags": "고성형, 모델",
-      "owners": [
+      "id": "PR-002",
+      "l1": "공정",
+      "l2": "제강",
+      "l3": "전기로 청정도 제어",
+      "sticker": "개재물 저감",
+      "summary": "슬래그 조성과 개재물 제어",
+      "isCore": true,
+      "growthStage": "기술진화",
+      "researchStage": "전략기술",
+      "orgs": [
         {
-          "group": "재료설계그룹",
-          "team": "상변태팀",
-          "owner": "문지호"
+          "type": "연구그룹",
+          "name": "청정강그룹",
+          "owner": "태민",
+          "role": "담당"
+        },
+        {
+          "type": "팀",
+          "name": "제강조업TF",
+          "owner": "지아",
+          "role": "담당"
         }
-      ]
+      ],
+      "tags": ""
     },
     {
-      "l1": "제품군",
-      "l2": "고급강 제품",
-      "l3": "고내식 표면처리",
-      "l4": "Zn-Al-Mg 도금조직 제어",
-      "coreLevel": 0,
-      "category": "",
-      "group": "도금연구그룹",
-      "team": "표면기술팀",
-      "research_stage": "수익기술",
-      "rep": "삼원계 도금조직",
-      "tags": "도금, 내식",
-      "owners": [
+      "id": "PR-003",
+      "l1": "공정",
+      "l2": "열연",
+      "l3": "가열로 에너지 최적화",
+      "sticker": "폐열 회수",
+      "summary": "가열로 에너지와 생산 조건 최적화",
+      "isCore": true,
+      "growthStage": "신시장/미래",
+      "researchStage": "차세대기술",
+      "orgs": [
         {
-          "group": "도금연구그룹",
-          "team": "표면기술팀",
-          "owner": "배유진"
+          "type": "팀",
+          "name": "에너지효율팀",
+          "owner": "도윤",
+          "role": "담당"
         }
-      ]
+      ],
+      "tags": ""
     },
     {
-      "l1": "공정군",
-      "l2": "AI/DT 공정",
-      "l3": "공정 예측/자동제어",
-      "l4": "품질 이상탐지 모델",
-      "coreLevel": 4,
-      "category": "기술성장",
-      "group": "AI공정그룹",
-      "team": "데이터모델팀",
-      "research_stage": "차세대기술",
-      "rep": "AI 이상탐지",
-      "tags": "AI, 이상탐지",
-      "owners": [
+      "id": "PR-004",
+      "l1": "공정",
+      "l2": "DX",
+      "l3": "품질 이상탐지 모델",
+      "sticker": "이상탐지 알고리즘",
+      "summary": "라인 품질 조기경보와 원인 탐색",
+      "isCore": true,
+      "growthStage": "기술진화",
+      "researchStage": "차세대기술",
+      "orgs": [
         {
-          "group": "AI공정그룹",
-          "team": "데이터모델팀",
-          "owner": "신예린"
+          "type": "연구그룹",
+          "name": "AI공정그룹",
+          "owner": "신예린",
+          "role": "담당"
+        },
+        {
+          "type": "팀",
+          "name": "데이터플랫폼팀",
+          "owner": "재원",
+          "role": "담당"
         }
-      ]
+      ],
+      "tags": ""
+    },
+    {
+      "id": "PR-005",
+      "l1": "공정",
+      "l2": "환경에너지",
+      "l3": "부산물 순환 공정",
+      "sticker": "슬래그 활용",
+      "summary": "부산물 고부가화와 환경부하 저감",
+      "isCore": false,
+      "growthStage": "",
+      "researchStage": "미지정",
+      "orgs": [
+        {
+          "type": "팀",
+          "name": "환경에너지PJ",
+          "owner": "하린",
+          "role": "담당"
+        }
+      ],
+      "tags": ""
+    },
+    {
+      "id": "PR-006",
+      "l1": "공정",
+      "l2": "냉연",
+      "l3": "냉연 판형 예측",
+      "sticker": "장력-형상 모델",
+      "summary": "압연 조건과 판형 안정화",
+      "isCore": false,
+      "growthStage": "",
+      "researchStage": "전략기술",
+      "orgs": [
+        {
+          "type": "연구그룹",
+          "name": "냉연공정그룹",
+          "owner": "민재",
+          "role": "담당"
+        }
+      ],
+      "tags": ""
+    },
+    {
+      "id": "S-001",
+      "l1": "솔루션",
+      "l2": "조선에너지",
+      "l3": "극저온 고객 인증 패키지",
+      "sticker": "인증 데이터 패키지",
+      "summary": "조선/에너지 고객 인증용 시험 데이터 체계",
+      "isCore": true,
+      "growthStage": "신시장/미래",
+      "researchStage": "전략기술",
+      "orgs": [
+        {
+          "type": "팀",
+          "name": "조선에너지솔루션팀",
+          "owner": "서준",
+          "role": "담당"
+        },
+        {
+          "type": "연구그룹",
+          "name": "후판연구그룹",
+          "owner": "홍길동",
+          "role": "담당"
+        }
+      ],
+      "tags": ""
+    },
+    {
+      "id": "S-002",
+      "l1": "솔루션",
+      "l2": "자동차",
+      "l3": "EV 배터리 케이스 솔루션",
+      "sticker": "부식-충돌 평가",
+      "summary": "부식과 충돌 안전성 통합 평가",
+      "isCore": true,
+      "growthStage": "기술성숙",
+      "researchStage": "수익기술",
+      "orgs": [
+        {
+          "type": "연구그룹",
+          "name": "이용기술그룹",
+          "owner": "소율",
+          "role": "담당"
+        },
+        {
+          "type": "팀",
+          "name": "자동차솔루션PJ",
+          "owner": "유진",
+          "role": "담당"
+        }
+      ],
+      "tags": ""
+    },
+    {
+      "id": "S-003",
+      "l1": "솔루션",
+      "l2": "건설",
+      "l3": "내진 구조재 적용기술",
+      "sticker": "항복비 제어",
+      "summary": "내진용 H형강 성능 안정화",
+      "isCore": true,
+      "growthStage": "기술성숙",
+      "researchStage": "수익기술",
+      "orgs": [
+        {
+          "type": "연구그룹",
+          "name": "형강연구그룹",
+          "owner": "승우",
+          "role": "담당"
+        }
+      ],
+      "tags": ""
+    },
+    {
+      "id": "S-004",
+      "l1": "솔루션",
+      "l2": "가전",
+      "l3": "프리미엄 외판 표면품질",
+      "sticker": "표면 결함 판정",
+      "summary": "가전 외판용 표면 품질 편차 저감",
+      "isCore": false,
+      "growthStage": "",
+      "researchStage": "수익기술",
+      "orgs": [
+        {
+          "type": "팀",
+          "name": "가전솔루션팀",
+          "owner": "나윤",
+          "role": "담당"
+        }
+      ],
+      "tags": ""
+    },
+    {
+      "id": "S-005",
+      "l1": "솔루션",
+      "l2": "방산",
+      "l3": "방호강 적용 평가",
+      "sticker": "충격 흡수 평가",
+      "summary": "고강도 방호재의 충격 성능 평가",
+      "isCore": false,
+      "growthStage": "",
+      "researchStage": "미지정",
+      "orgs": [
+        {
+          "type": "팀",
+          "name": "방산PJ",
+          "owner": "준서",
+          "role": "담당"
+        }
+      ],
+      "tags": ""
+    },
+    {
+      "id": "AX-001",
+      "l1": "AX",
+      "l2": "A1-Steel Brain",
+      "l3": "AI 합금-공정 추천",
+      "sticker": "조성-공정-성능 추천",
+      "summary": "합금 설계와 공정 조건 추천",
+      "isCore": true,
+      "growthStage": "기술진화",
+      "researchStage": "차세대기술",
+      "orgs": [
+        {
+          "type": "연구그룹",
+          "name": "AI공정그룹",
+          "owner": "세아",
+          "role": "담당"
+        },
+        {
+          "type": "팀",
+          "name": "재료설계TF",
+          "owner": "강하늘",
+          "role": "담당"
+        }
+      ],
+      "tags": ""
+    },
+    {
+      "id": "AX-002",
+      "l1": "AX",
+      "l2": "A1-Steel Brain",
+      "l3": "라인 데이터 정합",
+      "sticker": "센서 태깅",
+      "summary": "라인 데이터 표준화와 품질관리",
+      "isCore": false,
+      "growthStage": "",
+      "researchStage": "미지정",
+      "orgs": [
+        {
+          "type": "팀",
+          "name": "데이터플랫폼팀",
+          "owner": "재원",
+          "role": "담당"
+        }
+      ],
+      "tags": ""
+    },
+    {
+      "id": "AX-003",
+      "l1": "AX",
+      "l2": "A2",
+      "l3": "실험 자동화 에이전트",
+      "sticker": "실험조건 추천",
+      "summary": "실험 설계 자동화와 결과 해석 지원",
+      "isCore": true,
+      "growthStage": "신시장/미래",
+      "researchStage": "비전기술",
+      "orgs": [
+        {
+          "type": "팀",
+          "name": "AX전략팀",
+          "owner": "이안",
+          "role": "담당"
+        },
+        {
+          "type": "연구그룹",
+          "name": "AI공정그룹",
+          "owner": "신예린",
+          "role": "담당"
+        }
+      ],
+      "tags": ""
     }
   ]
 }

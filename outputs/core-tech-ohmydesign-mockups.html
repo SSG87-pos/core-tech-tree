@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Core Tech Oh My Design Mockups</title>
+<style>
+:root{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif;color:#172033;background:#f5f7fa}
+*{box-sizing:border-box}
+body{margin:0}
+.page{max-width:1440px;margin:0 auto;padding:24px}
+.intro{display:flex;justify-content:space-between;gap:20px;align-items:flex-end;margin-bottom:18px}
+h1{margin:0;font-size:32px;line-height:1.12;letter-spacing:0;font-weight:820}
+.intro p{margin:8px 0 0;color:#667085;font-size:13px;line-height:1.55;max-width:760px}
+.source{font-size:11px;color:#7a8798;text-align:right;line-height:1.5}
+.board{display:grid;gap:18px}
+.mock{border:1px solid var(--line);border-radius:20px;background:var(--outer);box-shadow:0 24px 70px var(--shadow);overflow:hidden}
+.mock-head{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:start;padding:20px 22px;background:var(--head);border-bottom:1px solid var(--line)}
+.mock h2{margin:0;font-size:23px;line-height:1.15;font-weight:820}
+.mock-desc{margin:8px 0 0;color:var(--muted);font-size:13px;line-height:1.5;max-width:850px}
+.verdict{border:1px solid var(--line);border-radius:999px;background:#fff;padding:8px 12px;font-size:12px;color:var(--ink);font-weight:760;white-space:nowrap}
+.screen{padding:18px;background:var(--bg)}
+.appbar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:center;margin-bottom:12px}
+.brand h3{margin:0;color:var(--ink);font-size:27px;line-height:1.05;font-weight:800}
+.brand span{display:block;margin-top:4px;color:var(--muted);font-size:12px;font-weight:650}
+.actions{display:flex;gap:8px}
+button{border:1px solid var(--line);border-radius:var(--radius-sm);background:#fff;color:var(--ink);height:34px;padding:0 12px;font:inherit;font-size:12px;font-weight:720}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 8px 18px var(--accent-shadow)}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:12px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:12px}
+.kpi small{display:block;color:var(--muted);font-size:11px;font-weight:720}
+.kpi b{display:block;margin-top:4px;color:var(--ink);font-size:24px;line-height:1;font-weight:780}
+.layout{display:grid;grid-template-columns:300px minmax(0,1fr);gap:12px}
+.panel{background:#fff;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.panel-title{height:42px;display:flex;align-items:center;justify-content:space-between;padding:0 13px;border-bottom:1px solid var(--line2);font-size:13px;font-weight:780;color:var(--ink)}
+.panel-title span{color:var(--muted);font-size:11px;font-weight:650}
+.filters{display:grid;gap:12px;padding:12px}
+.field label{display:block;margin-bottom:7px;color:var(--muted);font-size:10px;font-weight:760;letter-spacing:.03em;text-transform:uppercase}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;align-items:center;border:1px solid var(--chip-line);border-radius:999px;background:var(--chip);color:var(--chip-ink);padding:6px 9px;font-size:11px;font-weight:680;line-height:1}
+.chip.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.search{height:34px;border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--input);color:var(--muted);padding:0 10px;font-size:12px;font-weight:600}
+.main{display:grid;gap:12px}
+.map{background:#fff;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.map-title{height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-bottom:1px solid var(--line2);font-size:14px;font-weight:800;color:var(--ink)}
+.core-badge{border:1px solid var(--core-line);background:var(--core-bg);color:var(--core);border-radius:999px;padding:4px 9px;font-size:11px;font-weight:760}
+.tree{display:grid;gap:9px;padding:12px}
+.l1{border:1px solid var(--line);border-radius:var(--radius-sm);overflow:hidden;background:var(--soft)}
+.l1-head{display:flex;align-items:center;gap:8px;padding:9px 11px;border-bottom:1px solid var(--line2);font-size:14px;font-weight:820;color:var(--ink);box-shadow:inset 3px 0 0 var(--accent)}
+.l2{display:grid;grid-template-columns:120px minmax(0,1fr);border-top:1px solid var(--line2)}
+.l2:first-of-type{border-top:0}
+.l2-name{padding:10px;border-right:1px solid var(--line2);font-size:12px;font-weight:760;color:var(--ink)}
+.techs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;padding:8px}
+.tech{border:1px solid var(--line);border-radius:var(--radius-sm);background:#fff;padding:8px 9px;min-width:0}
+.tech b{display:flex;gap:6px;align-items:center;font-size:12px;font-weight:740;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.star{color:var(--accent2)}
+.meta{display:flex;gap:4px;margin-top:6px;overflow:hidden}
+.pill{border:1px solid var(--pill-line);background:var(--pill);color:var(--muted);border-radius:999px;padding:3px 6px;font-size:9.5px;font-weight:600;white-space:nowrap}
+.stats{display:grid;grid-template-columns:260px minmax(0,1fr);gap:12px}
+.bars{display:grid;gap:8px;padding:12px}
+.bar{display:grid;grid-template-columns:64px 1fr 28px;gap:8px;align-items:center;font-size:11px;font-weight:680}
+.track{height:8px;border-radius:999px;background:var(--line2);overflow:hidden}
+.fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+.cols{height:128px;display:flex;gap:9px;align-items:end;padding:12px 12px 22px;border-bottom:1px solid var(--line2)}
+.col{display:grid;grid-template-rows:1fr auto;gap:5px;align-items:end;width:38px;text-align:center;color:var(--muted);font-size:9.5px;font-weight:680}
+.col i{display:block;border-radius:7px 7px 2px 2px;background:linear-gradient(180deg,var(--accent),var(--accent2))}
+.orgs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.org-list{display:grid;gap:6px;padding:10px}
+.org{display:grid;grid-template-columns:1fr auto;gap:8px;border:1px solid var(--line2);border-radius:var(--radius-sm);background:var(--soft);padding:7px 8px;font-size:11px;font-weight:700}
+.org span{color:var(--muted);font-weight:620}
+.note{padding:11px 14px;color:var(--muted);font-size:12px;line-height:1.5;border-top:1px solid var(--line2);background:#fff}
+.yeogi{--ink:#242633;--muted:#747684;--outer:#fffaf9;--head:#fff;--bg:#fff7f6;--soft:#fffaf9;--line:#f0deda;--line2:#f7ebe8;--accent:#ff5a5f;--accent2:#7accc4;--accent-shadow:rgba(255,90,95,.18);--chip:#fff4f2;--chip-line:#f2d8d3;--chip-ink:#80403d;--pill:#fff6f3;--pill-line:#f0deda;--input:#fff;--core:#b75a15;--core-bg:#fff7ed;--core-line:#f4c08b;--radius:16px;--radius-sm:12px;--shadow:rgba(153,72,58,.08)}
+.nhn{--ink:#172033;--muted:#687789;--outer:#ffffff;--head:#fbfdff;--bg:#f5f8fc;--soft:#f9fbfe;--line:#dce5f0;--line2:#edf2f7;--accent:#2f6fed;--accent2:#20a0a8;--accent-shadow:rgba(47,111,237,.16);--chip:#f3f7ff;--chip-line:#dce8fb;--chip-ink:#23508c;--pill:#f6f9fd;--pill-line:#dfe7f1;--input:#fbfdff;--core:#a85a18;--core-bg:#fff7ed;--core-line:#efc18e;--radius:10px;--radius-sm:8px;--shadow:rgba(15,35,65,.08)}
+.alipay{--ink:#071a33;--muted:#607087;--outer:#ffffff;--head:#f8fbff;--bg:#f2f7ff;--soft:#f8fbff;--line:#d8e6f8;--line2:#edf4fd;--accent:#1677ff;--accent2:#00a3c4;--accent-shadow:rgba(22,119,255,.18);--chip:#edf5ff;--chip-line:#d4e6ff;--chip-ink:#1458b5;--pill:#f5faff;--pill-line:#dbeaff;--input:#fff;--core:#b65f16;--core-bg:#fff7ed;--core-line:#efc18e;--radius:12px;--radius-sm:9px;--shadow:rgba(22,119,255,.08)}
+@media(max-width:980px){.intro,.mock-head,.layout,.stats,.orgs{grid-template-columns:1fr}.techs{grid-template-columns:1fr}.verdict{justify-self:start}}
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="intro">
+    <div>
+      <h1>Oh My Design 계열 감성 목업 3안</h1>
+      <p>요청하신 여기도때, NHN Cloud, Alipay 계열의 분위기를 Core Technology 화면에 맞게 번역했습니다. 필터 위치와 정보 구조는 유지하고, 색상·선·라운드·밀도만 다르게 보여주는 비교용 목업입니다.</p>
+    </div>
+    <div class="source">Reference URLs provided by user<br>actual pages were not fetchable in this environment</div>
+  </header>
+  <main class="board" id="board"></main>
+</div>
+<script>
+const mocks=[
+  {cls:"yeogi",name:"Yeogiotte Soft Coral",tag:"친근하지만 업무툴에는 보조 후보",desc:"따뜻한 코랄, 큰 라운드, 밝은 칩을 써서 진한 기술맵의 무게를 가장 많이 덜어낸 안입니다. 다만 기술 체계의 신뢰감은 조금 약해질 수 있습니다."},
+  {cls:"nhn",name:"NHN Cloud Enterprise",tag:"가장 추천",desc:"클라우드/엔터프라이즈 도구에 가까운 정돈된 블루 톤입니다. 현재 필터 구조를 거의 건드리지 않고도 선과 면, 버튼 무게를 세련되게 낮추기 좋습니다."},
+  {cls:"alipay",name:"Alipay Trust Blue",tag:"명확한 액션과 신뢰감",desc:"핀테크식 선명한 블루와 밝은 표면을 활용한 안입니다. 데이터 화면이 또렷하고 신뢰감 있지만, 적용 강도에 따라 조금 플랫폼 앱처럼 보일 수 있습니다."}
+];
+const tech=[["냉연","1.5GPa급 냉연강","강도-연성 밸런스","자동차소재연구그룹","오지훈"],["도금","Ni-X 열처리 생략 도금","Ni-X 조성 제어","도금연구그룹","정다은"],["후판","LNG용 고Mn강","고Mn 합금설계","후판연구그룹","홍길동"],["A1-Steel Brain","AI 합금-공정 추천","조성-공정-성능 추천","AI공정그룹","세아"]];
+function panel(m){
+ return `<section class="mock ${m.cls}">
+  <div class="mock-head"><div><h2>${m.name}</h2><p class="mock-desc">${m.desc}</p></div><div class="verdict">${m.tag}</div></div>
+  <div class="screen">
+    <div class="appbar"><div class="brand"><h3>Core Technology 2026</h3><span>기술 · 조직 · 성장단계 통합 맵</span></div><div class="actions"><button>JSON</button><button>XLSX</button><button class="primary">22개 표시</button></div></div>
+    <div class="kpis">${[["Level 1","4"],["Level 2","20"],["Core기술","22"],["담당자","29"]].map(x=>`<div class="kpi"><small>${x[0]}</small><b>${x[1]}</b></div>`).join("")}</div>
+    <div class="layout">
+      <aside class="panel"><div class="panel-title">필터 <span>중복 선택</span></div><div class="filters">
+        <div class="field"><label>기술 / 조직</label><div class="chips"><span class="chip active">기술</span><span class="chip">조직</span></div></div>
+        <div class="field"><label>Level 1</label><div class="chips"><span class="chip active">전체</span><span class="chip">제품</span><span class="chip">공정</span><span class="chip">솔루션</span><span class="chip">AX</span></div></div>
+        <div class="field"><label>성장 단계</label><div class="chips"><span class="chip active">★ 기술성숙</span><span class="chip">★ 기술진화</span><span class="chip">★ 신시장/미래</span></div></div>
+        <div class="field"><label>검색</label><div class="search">기술명 · 태그 · 연구그룹 · 담당자</div></div>
+      </div></aside>
+      <section class="main">
+        <div class="map"><div class="map-title">기술 체계 맵 <span class="core-badge">제품 Core 8개</span></div><div class="tree">
+          <div class="l1"><div class="l1-head">제품 <span class="core-badge">Core 8개</span></div>
+            ${["냉연","도금"].map((l2,i)=>`<div class="l2"><div class="l2-name">${l2}</div><div class="techs">${tech.slice(i*2,i*2+2).map(t=>`<div class="tech"><b><span class="star">★</span>${t[1]}</b><div class="meta"><span class="pill">${t[2]}</span><span class="pill">${t[3]}</span><span class="pill">${t[4]}</span></div></div>`).join("")}</div></div>`).join("")}
+          </div>
+          <div class="l1"><div class="l1-head">AX <span class="core-badge">Core 3개</span></div><div class="l2"><div class="l2-name">A1-Steel Brain</div><div class="techs">${tech.slice(3).map(t=>`<div class="tech"><b><span class="star">★</span>${t[1]}</b><div class="meta"><span class="pill">${t[2]}</span><span class="pill">${t[3]}</span><span class="pill">${t[4]}</span></div></div>`).join("")}</div></div></div>
+        </div></div>
+        <div class="stats">
+          <div class="panel"><div class="panel-title">Level 1 분포 <span>작게</span></div><div class="bars">${[["제품",8,100],["공정",6,75],["솔루션",5,62],["AX",3,38]].map(x=>`<div class="bar"><b>${x[0]}</b><div class="track"><div class="fill" style="width:${x[2]}%"></div></div><span>${x[1]}</span></div>`).join("")}</div></div>
+          <div class="panel"><div class="panel-title">Level 2 기술 분포 <span>Level 1 묶음</span></div><div class="cols">${[1,1,1,1,2,1,1,1,1,1,2,1].map((v,i)=>`<div class="col"><i style="height:${24+v*34}px"></i><span>${["냉연","도금","선재","자동차","후판","STS","열연","제강","DX","건설","A1","A2"][i]}</span></div>`).join("")}</div></div>
+        </div>
+        <div class="orgs"><div class="panel"><div class="panel-title">연구그룹 <span>많은 기술순</span></div><div class="org-list">${["후판연구그룹","AI공정그룹","이용기술그룹"].map((x,i)=>`<div class="org"><b>${x}</b><span>Core ${3-i} · 담당자 ${2-i%2}명</span></div>`).join("")}</div></div><div class="panel"><div class="panel-title">팀 <span>많은 기술순</span></div><div class="org-list">${["재료설계TF","데이터플랫폼팀","공정설비팀"].map((x,i)=>`<div class="org"><b>${x}</b><span>Core ${2-i%2} · 담당자 1명</span></div>`).join("")}</div></div></div>
+      </section>
+    </div>
+  </div>
+  <div class="note">적용 감도: 필터 위치와 기술체계 구조는 유지하고, 전역 토큰(배경, 선, 칩, 버튼, 차트색, radius, shadow)만 바꾸는 방식으로 실제 적용 가능.</div>
+ </section>`;
+}
+document.querySelector("#board").innerHTML=mocks.map(panel).join("");
+</script>
+</body>
+</html>
